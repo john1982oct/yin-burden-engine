@@ -73,6 +73,45 @@ def yin_burden():
         "merit_debt": profile
     })
 
+@app.route("/bazi-debug", methods=["POST"])
+def bazi_debug():
+    """
+    Debug endpoint to inspect the current (placeholder) BaZi chart.
+
+    Expected JSON body:
+    {
+      "date_of_birth": "dd/mm/yyyy" or "yyyy-mm-dd",
+      "time_of_birth": "HH:MM" (optional)
+    }
+
+    For now:
+    - If no time-of-birth is given, we default to 12:00 (noon)
+    - This uses compute_placeholder_bazi(), not real BaZi yet.
+    """
+    data = request.get_json(silent=True) or {}
+
+    dob_str = data.get("date_of_birth")
+    if not dob_str:
+        return jsonify({"error": "date_of_birth is required"}), 400
+
+    dob = _parse_date_flex(dob_str)
+    if dob is None:
+        return jsonify({
+            "error": "Invalid date_of_birth format. Use dd/mm/yyyy or yyyy-mm-dd."
+        }), 400
+
+    # Handle optional time of birth
+    tob_str = data.get("time_of_birth")
+    if tob_str:
+        try:
+            hh, mm = tob_str.split(":")
+            dob = dob.replace(hour=int(hh), minute=int(mm))
+        except Exception:
+            pass
+    else:
+        dob = dob.replace(hour=12, minute=0)  # default
+
+    chart = compute_placeholder_bazi(dob)
 
 if __name__ == "__main__":
     # For local testing; Render will run via gunicorn
