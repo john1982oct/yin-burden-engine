@@ -8,6 +8,9 @@ HEAVENLY_STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬",
 # 12 Earthly Branches
 EARTHLY_BRANCHES = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
 
+# Month branches always start from 寅月
+MONTH_BRANCH_SEQUENCE = ["寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥", "子", "丑"]
+
 
 # -------------------------------------------------------------
 # Li Chun Table (Year → Month, Day)
@@ -91,7 +94,101 @@ def compute_year_pillar_basic(dt: datetime) -> Pillar:
 
 
 # -------------------------------------------------------------
-# Placeholder logic for Month, Day, Hour pillars
+# BaZi Month Index (1–12) based on solar terms (approx rules)
+#
+# 1  寅月: 2/4  – 3/5
+# 2  卯月: 3/6  – 4/4
+# 3  辰月: 4/5  – 5/5
+# 4  巳月: 5/6  – 6/5
+# 5  午月: 6/6  – 7/6
+# 6  未月: 7/7  – 8/7
+# 7  申月: 8/8  – 9/7
+# 8  酉月: 9/8  – 10/7
+# 9  戌月: 10/8 – 11/7
+# 10 亥月: 11/8 – 12/6
+# 11 子月: 12/7 – 1/5
+# 12 丑月: 1/6  – 2/3
+# -------------------------------------------------------------
+def get_bazi_month_index(dt: datetime) -> int:
+    m = dt.month
+    d = dt.day
+
+    # 寅月
+    if (m == 2 and d >= 4) or (m == 3 and d <= 5):
+        return 1
+    # 卯月
+    if (m == 3 and d >= 6) or (m == 4 and d <= 4):
+        return 2
+    # 辰月
+    if (m == 4 and d >= 5) or (m == 5 and d <= 5):
+        return 3
+    # 巳月
+    if (m == 5 and d >= 6) or (m == 6 and d <= 5):
+        return 4
+    # 午月
+    if (m == 6 and d >= 6) or (m == 7 and d <= 6):
+        return 5
+    # 未月
+    if (m == 7 and d >= 7) or (m == 8 and d <= 7):
+        return 6
+    # 申月
+    if (m == 8 and d >= 8) or (m == 9 and d <= 7):
+        return 7
+    # 酉月
+    if (m == 9 and d >= 8) or (m == 10 and d <= 7):
+        return 8
+    # 戌月
+    if (m == 10 and d >= 8) or (m == 11 and d <= 7):
+        return 9
+    # 亥月
+    if (m == 11 and d >= 8) or (m == 12 and d <= 6):
+        return 10
+    # 子月
+    if (m == 12 and d >= 7) or (m == 1 and d <= 5):
+        return 11
+    # 丑月
+    # (m == 1 and d >= 6) or (m == 2 and d <= 3)
+    return 12
+
+
+# -------------------------------------------------------------
+# REAL Month Pillar (stem + branch)
+#
+# Month stem rule:
+#   Year stem 甲/己 → 寅月丙, then cycle
+#   Year stem 乙/庚 → 寅月戊
+#   Year stem 丙/辛 → 寅月庚
+#   Year stem 丁/壬 → 寅月壬
+#   Year stem 戊/癸 → 寅月甲
+# Then add (month_index - 1) to stem index (mod 10).
+# -------------------------------------------------------------
+def compute_month_pillar(dt: datetime, year_pillar: Pillar) -> Pillar:
+    month_index = get_bazi_month_index(dt)  # 1..12
+    year_stem = year_pillar.stem
+
+    # 寅月 starting stem based on year stem
+    if year_stem in ("甲", "己"):
+        start_stem = "丙"
+    elif year_stem in ("乙", "庚"):
+        start_stem = "戊"
+    elif year_stem in ("丙", "辛"):
+        start_stem = "庚"
+    elif year_stem in ("丁", "壬"):
+        start_stem = "壬"
+    else:  # 戊, 癸
+        start_stem = "甲"
+
+    start_index = HEAVENLY_STEMS.index(start_stem)
+    stem_index = (start_index + (month_index - 1)) % 10
+    stem = HEAVENLY_STEMS[stem_index]
+
+    branch = MONTH_BRANCH_SEQUENCE[month_index - 1]
+
+    return Pillar(stem=stem, branch=branch)
+
+
+# -------------------------------------------------------------
+# Placeholder logic for Day, Hour pillars
 # -------------------------------------------------------------
 def _stem_branch_from_int(seed: int) -> Pillar:
     return Pillar(
@@ -101,11 +198,13 @@ def _stem_branch_from_int(seed: int) -> Pillar:
 
 
 def compute_placeholder_bazi(dt: datetime) -> BaziChart:
-    # REAL YEAR PILLAR (NOW ACCURATE)
+    # REAL YEAR PILLAR
     year_pillar = compute_year_pillar_basic(dt)
 
-    # SAFE placeholder pillars (will upgrade later)
-    month_pillar = _stem_branch_from_int(dt.year * 12 + dt.month)
+    # REAL MONTH PILLAR (using year stem & solar month)
+    month_pillar = compute_month_pillar(dt, year_pillar)
+
+    # SAFE placeholder day/hour pillars (to be improved later)
     day_pillar = _stem_branch_from_int(dt.timetuple().tm_yday)
     hour_pillar = _stem_branch_from_int(dt.hour + dt.timetuple().tm_yday * 24)
 
