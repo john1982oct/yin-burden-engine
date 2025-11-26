@@ -1,6 +1,6 @@
 # bazi_core.py
 from dataclasses import dataclass
-from datetime import datetime, date
+from datetime import datetime
 
 # 10 Heavenly Stems
 HEAVENLY_STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
@@ -11,14 +11,27 @@ EARTHLY_BRANCHES = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申
 # Month branches always start from 寅月
 MONTH_BRANCH_SEQUENCE = ["寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥", "子", "丑"]
 
-# Hour branches from 子时 to 亥时
-HOUR_BRANCH_SEQUENCE = ["子", "丑", "寅", "卯", "辰", "巳",
-                        "午", "未", "申", "酉", "戌", "亥"]
+
+@dataclass
+class Pillar:
+    stem: str
+    branch: str
+
+    def __str__(self):
+        return f"{self.stem}{self.branch}"
+
+
+@dataclass
+class BaziChart:
+    year: Pillar
+    month: Pillar
+    day: Pillar
+    hour: Pillar
+    day_master: str
 
 
 # -------------------------------------------------------------
-# Li Chun Table (Year → Month, Day)
-# Covers 1960–2040 for Aido Engine usage
+# Li Chun Table (Year → Month, Day) 1960–2040
 # -------------------------------------------------------------
 LI_CHUN_DATES = {
     1960: (2, 4), 1961: (2, 4), 1962: (2, 4), 1963: (2, 4), 1964: (2, 5),
@@ -41,27 +54,9 @@ LI_CHUN_DATES = {
 }
 
 
-@dataclass
-class Pillar:
-    stem: str
-    branch: str
-
-    def __str__(self):
-        return f"{self.stem}{self.branch}"
-
-
-@dataclass
-class BaziChart:
-    year: Pillar
-    month: Pillar
-    day: Pillar
-    hour: Pillar
-    day_master: str
-
-
-# -------------------------------------------------------------
+# ---------------------------
 # Helper: adjust BaZi year by Li Chun
-# -------------------------------------------------------------
+# ---------------------------
 def adjust_year_for_li_chun(dt: datetime) -> int:
     """
     If birth is before Li Chun of that year → use previous year.
@@ -78,26 +73,29 @@ def adjust_year_for_li_chun(dt: datetime) -> int:
     return y
 
 
-# -------------------------------------------------------------
-# REAL BaZi Year Pillar with Li Chun
-# -------------------------------------------------------------
-def compute_year_pillar(dt: datetime) -> Pillar:
+# ---------------------------
+# REAL YEAR PILLAR (with Li Chun)
+# ---------------------------
+def compute_year_pillar_basic(dt: datetime) -> Pillar:
+    """
+    Real BaZi Year Pillar with Li Chun adjustment.
+    Formula:
+      stem_index = (year - 4) % 10
+      branch_index = (year - 4) % 12
+    """
     bazi_year = adjust_year_for_li_chun(dt)
-
     base = bazi_year - 4
     stem_index = base % 10
     branch_index = base % 12
-
     return Pillar(
         stem=HEAVENLY_STEMS[stem_index],
         branch=EARTHLY_BRANCHES[branch_index],
     )
 
 
-# -------------------------------------------------------------
-# BaZi Month Index (1–12) based on approximate solar terms
-# (good enough for 1960–2040 range)
-# -------------------------------------------------------------
+# ---------------------------
+# REAL BaZi Month Index 1–12 (solar month)
+# ---------------------------
 def get_bazi_month_index(dt: datetime) -> int:
     m = dt.month
     d = dt.day
@@ -135,15 +133,20 @@ def get_bazi_month_index(dt: datetime) -> int:
     # 子月
     if (m == 12 and d >= 7) or (m == 1 and d <= 5):
         return 11
-    # 丑月
-    # (m == 1 and d >= 6) or (m == 2 and d <= 3)
+    # 丑月 (default)
     return 12
 
 
-# -------------------------------------------------------------
-# REAL Month Pillar
-# -------------------------------------------------------------
+# ---------------------------
+# REAL MONTH PILLAR
+# ---------------------------
 def compute_month_pillar(dt: datetime, year_pillar: Pillar) -> Pillar:
+    """
+    Real month pillar:
+
+    - Month branch from solar month index (寅月..丑月)
+    - Month stem from "寅月起干" rule using year stem
+    """
     month_index = get_bazi_month_index(dt)  # 1..12
     year_stem = year_pillar.stem
 
@@ -168,103 +171,29 @@ def compute_month_pillar(dt: datetime, year_pillar: Pillar) -> Pillar:
     return Pillar(stem=stem, branch=branch)
 
 
-# -------------------------------------------------------------
-# REAL Day Pillar using 60 JiaZi cycle
-#
-# Reference: 1984-02-02 (Gregorian) is treated as 甲子日.
-# -------------------------------------------------------------
-JIA_ZI_REF_DATE = date(1984, 2, 2)  # assumed 甲子日
+# ---------------------------
+# Helper for placeholder pillars
+# ---------------------------
+def _stem_branch_from_int(seed: int) -> Pillar:
+    stem = HEAVENLY_STEMS[seed % 10]
+    branch = EARTHLY_BRANCHES[seed % 12]
+    return Pillar(stem, branch)
 
 
-def compute_day_pillar(dt: datetime) -> Pillar:
-    # Work with date only (local)
-    current_date = dt.date()
-    delta_days = (current_date - JIA_ZI_REF_DATE).days
+# ---------------------------
+# Main entry currently used by app.py
+# (Year + Month are real, Day/Hour still placeholder)
+# ---------------------------
+def compute_placeholder_bazi(dt: datetime) -> BaziChart:
+    # REAL year pillar
+    year_pillar = compute_year_pillar_basic(dt)
 
-    # Normalize to positive cycle index 0..59
-    index = delta_days % 60
-
-    stem_index = index % 10
-    branch_index = index % 12
-
-    stem = HEAVENLY_STEMS[stem_index]
-    branch = EARTHLY_BRANCHES[branch_index]
-
-    return Pillar(stem=stem, branch=branch)
-
-
-# -------------------------------------------------------------
-# Helper: hour branch index (0..11) from clock time
-# 子: 23:00–00:59, 丑: 01:00–02:59, ... , 亥: 21:00–22:59
-# -------------------------------------------------------------
-def get_hour_branch_index(hour: int, minute: int) -> int:
-    # normalize 24:xx if ever
-    h = hour % 24
-
-    if h == 23 or h == 0:
-        return 0  # 子
-    if 1 <= h <= 2:
-        return 1  # 丑
-    if 3 <= h <= 4:
-        return 2  # 寅
-    if 5 <= h <= 6:
-        return 3  # 卯
-    if 7 <= h <= 8:
-        return 4  # 辰
-    if 9 <= h <= 10:
-        return 5  # 巳
-    if 11 <= h <= 12:
-        return 6  # 午
-    if 13 <= h <= 14:
-        return 7  # 未
-    if 15 <= h <= 16:
-        return 8  # 申
-    if 17 <= h <= 18:
-        return 9  # 酉
-    if 19 <= h <= 20:
-        return 10  # 戌
-    # 21–22
-    return 11  # 亥
-
-
-# -------------------------------------------------------------
-# REAL Hour Pillar
-#
-# Formula:
-#   hour_branch_index = 0..11 (子..亥)
-#   day_stem_index = index of day stem in HEAVENLY_STEMS
-#   hour_stem_index = (2 * day_stem_index + hour_branch_index) % 10
-#
-# This reproduces the classic groups:
-#   甲/己日 → 子时甲
-#   乙/庚日 → 子时丙
-#   丙/辛日 → 子时戊
-#   丁/壬日 → 子时庚
-#   戊/癸日 → 子时壬
-# and cycles naturally for all 12 hours.
-# -------------------------------------------------------------
-def compute_hour_pillar(dt: datetime, day_pillar: Pillar) -> Pillar:
-    hour = dt.hour
-    minute = dt.minute
-
-    hb_index = get_hour_branch_index(hour, minute)
-    branch = HOUR_BRANCH_SEQUENCE[hb_index]
-
-    day_stem_index = HEAVENLY_STEMS.index(day_pillar.stem)
-    stem_index = (2 * day_stem_index + hb_index) % 10
-    stem = HEAVENLY_STEMS[stem_index]
-
-    return Pillar(stem=stem, branch=branch)
-
-
-# -------------------------------------------------------------
-# Main entry: compute full BaZi chart
-# -------------------------------------------------------------
-def compute_bazi_chart(dt: datetime) -> BaziChart:
-    year_pillar = compute_year_pillar(dt)
+    # REAL month pillar
     month_pillar = compute_month_pillar(dt, year_pillar)
-    day_pillar = compute_day_pillar(dt)
-    hour_pillar = compute_hour_pillar(dt, day_pillar)
+
+    # Placeholder day/hour (we'll upgrade later)
+    day_pillar = _stem_branch_from_int(dt.timetuple().tm_yday)
+    hour_pillar = _stem_branch_from_int(dt.hour + dt.timetuple().tm_yday * 24)
 
     day_master = day_pillar.stem
 
@@ -275,11 +204,6 @@ def compute_bazi_chart(dt: datetime) -> BaziChart:
         hour=hour_pillar,
         day_master=day_master,
     )
-
-
-# Backwards-compatible name for existing code
-def compute_placeholder_bazi(dt: datetime) -> BaziChart:
-    return compute_bazi_chart(dt)
 
 
 def describe_bazi_chart(chart: BaziChart) -> dict:
