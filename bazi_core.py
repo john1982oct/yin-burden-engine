@@ -1,6 +1,6 @@
 # bazi_core.py
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, date
 
 # 10 Heavenly Stems
 HEAVENLY_STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
@@ -172,7 +172,35 @@ def compute_month_pillar(dt: datetime, year_pillar: Pillar) -> Pillar:
 
 
 # ---------------------------
-# Helper for placeholder pillars
+# REAL DAY PILLAR (60 JiaZi cycle)
+# ---------------------------
+def compute_day_pillar_real(dt: datetime) -> Pillar:
+    """
+    Real BaZi day pillar.
+
+    Anchor rule:
+      - 1984-02-02 (Gregorian) = 丙寅日
+      - That day is index 2 in the 60 JiaZi cycle (0-based).
+    Then we move forward/backward by the number of days difference.
+    """
+    # Reference 丙寅日
+    ref = date(1984, 2, 2)
+
+    # How many days from reference
+    diff_days = (dt.date() - ref).days
+
+    # 丙寅 is position 2 (0-based) in the 60-day JiaZi cycle
+    index_ref = 2
+    idx = (index_ref + diff_days) % 60  # 0..59
+
+    stem = HEAVENLY_STEMS[idx % 10]
+    branch = EARTHLY_BRANCHES[idx % 12]
+
+    return Pillar(stem=stem, branch=branch)
+
+
+# ---------------------------
+# Helper for placeholder pillars (still used for HOUR for now)
 # ---------------------------
 def _stem_branch_from_int(seed: int) -> Pillar:
     stem = HEAVENLY_STEMS[seed % 10]
@@ -182,18 +210,26 @@ def _stem_branch_from_int(seed: int) -> Pillar:
 
 # ---------------------------
 # Main entry currently used by app.py
-# (Year + Month are real, Day/Hour still placeholder)
+# (Year + Month + Day are real, Hour still placeholder)
 # ---------------------------
 def compute_placeholder_bazi(dt: datetime) -> BaziChart:
-    # REAL year pillar
+    """
+    Current status:
+      - Year pillar: real (with Li Chun)
+      - Month pillar: real (solar month + 寅月起干)
+      - Day pillar: real (60 JiaZi cycle)
+      - Hour pillar: placeholder (we'll upgrade later)
+    """
+    # REAL year & month
     year_pillar = compute_year_pillar_basic(dt)
-
-    # REAL month pillar
     month_pillar = compute_month_pillar(dt, year_pillar)
 
-    # Placeholder day/hour (we'll upgrade later)
-    day_pillar = _stem_branch_from_int(dt.timetuple().tm_yday)
-    hour_pillar = _stem_branch_from_int(dt.hour + dt.timetuple().tm_yday * 24)
+    # REAL day pillar
+    day_pillar = compute_day_pillar_real(dt)
+
+    # Hour pillar still placeholder
+    day_seed = dt.timetuple().tm_yday
+    hour_pillar = _stem_branch_from_int(dt.hour + day_seed * 24)
 
     day_master = day_pillar.stem
 
