@@ -19,6 +19,26 @@ HEAVENLY_STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬",
 # 12 Earthly Branches (地支)
 EARTHLY_BRANCHES = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
 
+def compute_year_pillar_basic(dt: datetime) -> Pillar:
+    """
+    Basic, *real* BaZi year pillar from Gregorian year.
+
+    Formula (without Li Chun adjustment):
+      - Stem index = (year - 4) % 10
+      - Branch index = (year - 4) % 12
+
+    Example:
+      1984 -> 甲子
+      1982 -> 壬戌
+    """
+    base = dt.year - 4
+    stem_index = base % len(HEAVENLY_STEMS)      # 0..9
+    branch_index = base % len(EARTHLY_BRANCHES) # 0..11
+    return Pillar(
+        stem=HEAVENLY_STEMS[stem_index],
+        branch=EARTHLY_BRANCHES[branch_index],
+    )
+
 
 @dataclass
 class Pillar:
