@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime
 from merit_engine import calculate_merit_debt_profile
+from bazi_core import compute_placeholder_bazi, describe_bazi_chart
 
 app = Flask(__name__)
 
