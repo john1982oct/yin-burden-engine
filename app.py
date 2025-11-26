@@ -3,6 +3,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime
+
 from merit_engine import calculate_merit_debt_profile
 from bazi_core import compute_placeholder_bazi, describe_bazi_chart
 
@@ -73,6 +74,7 @@ def yin_burden():
         "merit_debt": profile
     })
 
+
 @app.route("/bazi-debug", methods=["POST"])
 def bazi_debug():
     """
@@ -81,7 +83,7 @@ def bazi_debug():
     Expected JSON body:
     {
       "date_of_birth": "dd/mm/yyyy" or "yyyy-mm-dd",
-      "time_of_birth": "HH:MM" (optional)
+      "time_of_birth": "HH:MM" (optional, 24h)
     }
 
     For now:
@@ -107,11 +109,24 @@ def bazi_debug():
             hh, mm = tob_str.split(":")
             dob = dob.replace(hour=int(hh), minute=int(mm))
         except Exception:
+            # If parsing fails, just leave time as-is
             pass
     else:
-        dob = dob.replace(hour=12, minute=0)  # default
+        # default to noon
+        dob = dob.replace(hour=12, minute=0)
 
     chart = compute_placeholder_bazi(dob)
+    chart_dict = describe_bazi_chart(chart)
+
+    return jsonify({
+        "input": {
+            "date_of_birth": dob_str,
+            "time_of_birth": tob_str or "12:00 (default)"
+        },
+        "bazi_chart": chart_dict,
+        "note": "This is a placeholder chart for structure testing. Not yet full accurate BaZi."
+    })
+
 
 if __name__ == "__main__":
     # For local testing; Render will run via gunicorn
