@@ -90,6 +90,89 @@ BRANCH_ELEMENT = {
     "辰": "Earth", "戌": "Earth", "丑": "Earth", "未": "Earth",
 }
 
+# Element psychological stories
+ELEMENT_STORIES = {
+    "Wood": {
+        "strong": (
+            "When Wood is strong, you carry the energy of growth, planning and courage. "
+            "You like to move forward, initiate change and protect people you care about."
+        ),
+        "weak": (
+            "When Wood is weaker, it can feel like confidence, direction or motivation "
+            "go up and down. You may hesitate before taking the next brave step."
+        ),
+    },
+    "Fire": {
+        "strong": (
+            "When Fire is strong, you radiate warmth, passion and charisma. "
+            "You naturally light up rooms, inspire others and bring joy."
+        ),
+        "weak": (
+            "When Fire is weaker, your enthusiasm may burn out quickly or you may hide "
+            "your true feelings, worrying about being too much for others."
+        ),
+    },
+    "Earth": {
+        "strong": (
+            "When Earth is strong, you hold space for others. You are dependable, "
+            "grounded and often become the emotional anchor for family and friends."
+        ),
+        "weak": (
+            "When Earth is weaker, boundaries can blur. You may feel responsible for "
+            "everyone, yet find it hard to feel truly supported yourself."
+        ),
+    },
+    "Metal": {
+        "strong": (
+            "When Metal is strong, you value principles, integrity and standards. "
+            "You see clearly what is right for you and you dislike unfairness."
+        ),
+        "weak": (
+            "When Metal is weaker, self-criticism or doubt may appear, or you may find "
+            "it hard to say no even when something does not feel aligned."
+        ),
+    },
+    "Water": {
+        "strong": (
+            "When Water is strong, you are intuitive, reflective and sensitive to energy. "
+            "You can understand emotions deeply, even unspoken ones."
+        ),
+        "weak": (
+            "When Water is weaker, emotions may be bottled up or flow in sudden waves. "
+            "Rest, silence and honest sharing become very important for you."
+        ),
+    },
+}
+
+# Element-specific merit ideas
+GOOD_DEEDS_BY_ELEMENT = {
+    "Wood": [
+        "Support learning and growth: sponsor classes, share knowledge, mentor someone younger.",
+        "Plant trees or support environmental projects that protect forests and green spaces.",
+        "Stand up gently for people who feel small, helping them find their voice.",
+    ],
+    "Fire": [
+        "Bring warmth to lonely people: visit elders, check in on friends, brighten someone’s day.",
+        "Use your charisma for good: encourage shy people, celebrate others' wins sincerely.",
+        "Volunteer at events that spread joy, culture or community bonding.",
+    ],
+    "Earth": [
+        "Offer stable help: cook for someone tired, accompany a stressed friend to appointments.",
+        "Donate regularly (even small amounts) to causes that provide food, shelter or care.",
+        "Practice healthy boundaries so your kindness is sustainable, not exhausting.",
+    ],
+    "Metal": [
+        "Protect fairness: speak gently when you see unfair treatment or bullying.",
+        "Use your organisation skills to help others sort finances, documents or life admin.",
+        "Practice letting go by decluttering and donating items that can bless others.",
+    ],
+    "Water": [
+        "Listen deeply to someone who needs to talk, without judging or rushing to fix.",
+        "Support mental-health or counselling initiatives, even in small ways.",
+        "Create quiet spaces of peace: a small prayer/meditation corner, or calm playlists to share.",
+    ],
+}
+
 
 def _element_from_stem(stem: str):
     return STEM_ELEMENT.get(stem)
@@ -101,14 +184,17 @@ def _element_from_branch(branch: str):
 
 def calculate_yin_burden_from_bazi(chart):
     """
-    Real Yin-Burden using:
-    - 4 pillars (stem weight = 2, branch weight = 1)
-    - Day-Master extra weight = 2
-    - 5-element imbalance as karmic indicator
+    Turn a BaZi chart into a gentle Yin-Burden profile.
+
+    Logic:
+      - Count 5 elements from 4 pillars (stems weight 2, branches weight 1).
+      - Day-Master element gets extra weight (personal karma focus).
+      - Imbalance (max - min) becomes symbolic karmic load.
+      - More imbalance = deeper 'homework', but always framed as growth.
     """
 
     # -----------------------------
-    # 1) Count elements
+    # 1) Count elements with weights
     # -----------------------------
     elements = {"Wood": 0, "Fire": 0, "Earth": 0, "Metal": 0, "Water": 0}
 
@@ -122,13 +208,13 @@ def calculate_yin_burden_from_bazi(chart):
         if be:
             elements[be] += 1
 
-    # Day master weights your personal karma
+    # Day Master focus
     dm_elem = _element_from_stem(chart.day_master)
     if dm_elem:
         elements[dm_elem] += 2
 
     # -----------------------------
-    # 2) Compute imbalance
+    # 2) Imbalance calculation
     # -----------------------------
     vals = list(elements.values())
     max_v = max(vals)
@@ -143,9 +229,6 @@ def calculate_yin_burden_from_bazi(chart):
     score = max(10, min(95, raw_score))
     level = max(1, min(9, round(score / 10)))
 
-    # -----------------------------
-    # 4) Labels
-    # -----------------------------
     if level <= 3:
         label = "Light karmic breeze"
     elif level <= 5:
@@ -156,47 +239,64 @@ def calculate_yin_burden_from_bazi(chart):
         label = "Intense soul contract this life"
 
     # -----------------------------
-    # 5) Dominant + Weak elements
+    # 4) Dominant & weak element
     # -----------------------------
     dominant = max(elements, key=lambda k: elements[k])
     weak = min(elements, key=lambda k: elements[k])
 
+    dom_story = ELEMENT_STORIES[dominant]["strong"]
+    weak_story = ELEMENT_STORIES[weak]["weak"]
+
+    dom_deeds = GOOD_DEEDS_BY_ELEMENT.get(dominant, [])
+    weak_deeds = GOOD_DEEDS_BY_ELEMENT.get(weak, [])
+
+    # Combine 3–5 deeds (2 from dominant, 1–2 from weak)
+    good_deeds = []
+    good_deeds.extend(dom_deeds[:2])
+    if weak_deeds:
+        good_deeds.append(weak_deeds[0])
+    if len(weak_deeds) > 1 and len(good_deeds) < 5:
+        good_deeds.append(weak_deeds[1])
+
     # -----------------------------
-    # 6) Gentle summary
+    # 5) Warm combined summary
     # -----------------------------
     parts = []
 
     parts.append(
         f"Your chart leans strongly toward {dominant} energy, "
-        f"while {weak} energy is more subtle and quieter."
+        f"while {weak} energy is softer and more hidden."
     )
 
-    parts.append(
-        "This doesn’t mean anything is wrong — it simply reflects the type of "
-        "lessons, growth and emotional maturity you chose to experience in this lifetime."
-    )
+    parts.append(dom_story)
+    parts.append(weak_story)
 
     if level <= 3:
         parts.append(
-            "Your karmic load appears light. With small consistent merits and mindful habits, "
-            "you maintain smooth life flow."
+            "Overall, your karmic load appears light. With simple consistent merits and "
+            "mindful habits, you can maintain a smooth and relaxed life flow."
         )
     elif level <= 5:
         parts.append(
-            "There is a blend of ease and challenge. As you balance your five elements "
-            "through lifestyle and merits, old patterns soften naturally."
+            "Your chart suggests a mix of ease and challenge. As you balance your five elements "
+            "through actions and mindset, old patterns will naturally soften."
         )
     elif level <= 7:
         parts.append(
-            "This pattern often appears in people carrying ancestral stories. "
-            "Your merits and emotional work not only transform you, "
-            "but uplift your entire family field."
+            "This pattern is common in people carrying some ancestral stories. "
+            "Your personal growth and merits do not only heal you, they also gently uplift "
+            "your family and future generations."
         )
     else:
         parts.append(
             "This life carries a strong soul contract. With sincerity, compassion and service, "
-            "you convert heavy karmic weight into powerful spiritual merit."
+            "you can transform heavier karmic weight into very powerful spiritual credit."
         )
+
+    parts.append(
+        "Practical next steps: choose one or two simple good deeds from the suggestions above "
+        "and repeat them steadily. Small actions, done with heart, are extremely powerful."
+    )
 
     summary = " ".join(parts)
 
@@ -208,4 +308,7 @@ def calculate_yin_burden_from_bazi(chart):
         "dominant_element": dominant,
         "weak_element": weak,
         "summary": summary,
+        "dominant_story": dom_story,
+        "weak_story": weak_story,
+        "good_deeds": good_deeds,
     }
