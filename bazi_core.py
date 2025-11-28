@@ -172,29 +172,30 @@ def compute_month_pillar(dt: datetime, year_pillar: Pillar) -> Pillar:
 
 
 # ---------------------------
-# REAL DAY PILLAR (60 JiaZi cycle)
+# REAL DAY PILLAR (anchored to 1982-10-02 = 戊午日)
 # ---------------------------
 def compute_day_pillar_real(dt: datetime) -> Pillar:
     """
     Real BaZi day pillar.
 
-    Anchor rule:
-      - 1984-02-02 (Gregorian) = 丙寅日
-      - That day is index 2 in the 60 JiaZi cycle (0-based).
-    Then we move forward/backward by the number of days difference.
+    Anchor:
+      - 1982-10-02 (Gregorian) = 戊午日  (verified from your existing BaZi software)
+
+    For any other date:
+      - compute days difference from 1982-10-02
+      - advance stems & branches together by that many days
     """
-    # Reference 丙寅日
-    ref = date(1984, 2, 2)
+    anchor = date(1982, 10, 2)
+    anchor_stem_index = HEAVENLY_STEMS.index("戊")
+    anchor_branch_index = EARTHLY_BRANCHES.index("午")
 
-    # How many days from reference
-    diff_days = (dt.date() - ref).days
+    diff_days = (dt.date() - anchor).days
 
-    # 丙寅 is position 2 (0-based) in the 60-day JiaZi cycle
-    index_ref = 2
-    idx = (index_ref + diff_days) % 60  # 0..59
+    stem_index = (anchor_stem_index + diff_days) % 10
+    branch_index = (anchor_branch_index + diff_days) % 12
 
-    stem = HEAVENLY_STEMS[idx % 10]
-    branch = EARTHLY_BRANCHES[idx % 12]
+    stem = HEAVENLY_STEMS[stem_index]
+    branch = EARTHLY_BRANCHES[branch_index]
 
     return Pillar(stem=stem, branch=branch)
 
@@ -217,7 +218,7 @@ def compute_placeholder_bazi(dt: datetime) -> BaziChart:
     Current status:
       - Year pillar: real (with Li Chun)
       - Month pillar: real (solar month + 寅月起干)
-      - Day pillar: real (60 JiaZi cycle)
+      - Day pillar: real (anchored to 1982-10-02 = 戊午日)
       - Hour pillar: placeholder (we'll upgrade later)
     """
     # REAL year & month
