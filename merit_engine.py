@@ -3,11 +3,14 @@
 from datetime import datetime
 import hashlib
 
+# ---------------------------------------------------------
+# (A) STABLE PLACEHOLDER MERIT ENGINE (kept for /yin-burden)
+# ---------------------------------------------------------
 
 def _stable_int_seed(namespace: str, key: str) -> int:
     """
     Deterministic integer from (namespace, key) using md5.
-    Same inputs => same output, across restarts.
+    Same inputs => same output across restarts.
     """
     s = f"{namespace}:{key}"
     h = hashlib.md5(s.encode("utf-8")).hexdigest()
@@ -18,39 +21,37 @@ def calculate_merit_debt_profile(dob: datetime) -> dict:
     """
     TEMP VERSION:
     - Uses only date string to generate a stable fake score.
-    - We will later swap this to use real BaZi pillars.
+    - This is for the old /yin-burden endpoint (keep for compatibility).
     """
     dob_key = dob.strftime("%Y%m%d")
     h = _stable_int_seed("yin-burden", dob_key)
 
-    # Raw score 30..90 (placeholder scale)
     raw_score = 30 + (h % 61)
 
-    # Simple level mapping for v0.1
     if raw_score <= 40:
         level = 3
-        level_name = "Emotional Baggage"
+        label = "Emotional Baggage"
         summary = (
             "You carry light-to-medium emotional expectations and daily responsibilities. "
             "With small consistent positive actions, your burden can reduce quickly."
         )
     elif raw_score <= 60:
         level = 5
-        level_name = "Responsibility Load"
+        label = "Responsibility Load"
         summary = (
             "You often take care of others and shoulder responsibility. "
             "Learning healthy boundaries will greatly lighten your life burden."
         )
     elif raw_score <= 80:
         level = 7
-        level_name = "Wealth Leakage Phase"
+        label = "Wealth Leakage Phase"
         summary = (
             "Your life script includes lessons around money, loyalty and over-giving. "
             "You are meant to learn wise giving and strong self-protection."
         )
     else:
         level = 9
-        level_name = "Heavy Ancestral Load"
+        label = "Heavy Ancestral Load"
         summary = (
             "You chose deep karmic lessons this lifetime. "
             "After each reset, your wisdom and spiritual credit grow very fast."
@@ -61,16 +62,17 @@ def calculate_merit_debt_profile(dob: datetime) -> dict:
     return {
         "raw_score": raw_score,
         "level": level,
-        "level_name": level_name,
+        "label": label,
         "merit_points": merit_points,
         "summary": summary,
     }
-# ---------------------------
-# BaZi-based Yin Burden profile
-# ---------------------------
 
-# Five Elements mapping for stems & branches
 
+# ---------------------------------------------------------
+# (B) REAL BAZI-BASED YIN BURDEN ENGINE
+# ---------------------------------------------------------
+
+# Stem → Element
 STEM_ELEMENT = {
     "甲": "Wood", "乙": "Wood",
     "丙": "Fire", "丁": "Fire",
@@ -79,6 +81,7 @@ STEM_ELEMENT = {
     "壬": "Water", "癸": "Water",
 }
 
+# Branch → Element
 BRANCH_ELEMENT = {
     "子": "Water", "亥": "Water",
     "寅": "Wood", "卯": "Wood",
@@ -88,103 +91,121 @@ BRANCH_ELEMENT = {
 }
 
 
-def _element_counts_from_bazi_chart(chart) -> dict:
-    """
-    Count how many times each element appears in 4 pillars (8 characters).
-    `chart` can be a BaziChart or a simple dict with keys year/month/day/hour.
-    """
-    elements = {"Wood": 0, "Fire": 0, "Earth": 0, "Metal": 0, "Water": 0}
+def _element_from_stem(stem: str):
+    return STEM_ELEMENT.get(stem)
 
-    def add_pillar(pillar):
-        # pillar can be Pillar object or string like "壬戌"
-        if pillar is None:
-            return
-        if hasattr(pillar, "stem"):
-            stem = pillar.stem
-            branch = pillar.branch
-        else:
-            # assume string "XY"
-            s = str(pillar)
-            if len(s) >= 2:
-                stem, branch = s[0], s[1]
-            else:
-                return
 
-        se = STEM_ELEMENT.get(stem)
-        be = BRANCH_ELEMENT.get(branch)
-        if se:
-            elements[se] += 1
-        if be:
-            elements[be] += 1
-
-    add_pillar(chart.year)
-    add_pillar(chart.month)
-    add_pillar(chart.day)
-    add_pillar(chart.hour)
-
-    return elements
+def _element_from_branch(branch: str):
+    return BRANCH_ELEMENT.get(branch)
 
 
 def calculate_yin_burden_from_bazi(chart):
     """
-    Turn a BaZi chart into an 'Yin Burden' profile.
-
-    Idea:
-      - Look at 5-element balance across 4 pillars (8 chars).
-      - More imbalanced = heavier karmic load.
-      - This is symbolic, for Aido use only.
+    Real Yin-Burden using:
+    - 4 pillars (stem weight = 2, branch weight = 1)
+    - Day-Master extra weight = 2
+    - 5-element imbalance as karmic indicator
     """
-    counts = _element_counts_from_bazi_chart(chart)
 
-    values = [v for v in counts.values() if v > 0]
-    if not values:
-        # Fallback: no data
-        return {
-            "level": 5,
-            "label": "Unknown Load",
-            "score": 50,
-            "summary": "Chart data incomplete. Please re-check birth details.",
-            "elements": counts,
-        }
+    # -----------------------------
+    # 1) Count elements
+    # -----------------------------
+    elements = {"Wood": 0, "Fire": 0, "Earth": 0, "Metal": 0, "Water": 0}
 
-    max_c = max(values)
-    min_c = min(values)
-    imbalance = max_c - min_c
+    pillars = [chart.year, chart.month, chart.day, chart.hour]
 
-    # Basic scaling 0–4 -> 20–90
-    # imbalance 0/1 = lighter, 2 = medium, 3+ = heavy
-    if imbalance <= 1:
-        level = 3
-        label = "Light Ancestral Load"
-        score = 35 + imbalance * 5  # ~35–40
-        summary = (
-            "Your five elements are relatively balanced. "
-            "Karmic and ancestral burdens are present but not overwhelming. "
-            "Good deeds and mindful living can steadily dissolve them."
+    for p in pillars:
+        se = _element_from_stem(p.stem)
+        be = _element_from_branch(p.branch)
+        if se:
+            elements[se] += 2
+        if be:
+            elements[be] += 1
+
+    # Day master weights your personal karma
+    dm_elem = _element_from_stem(chart.day_master)
+    if dm_elem:
+        elements[dm_elem] += 2
+
+    # -----------------------------
+    # 2) Compute imbalance
+    # -----------------------------
+    vals = list(elements.values())
+    max_v = max(vals)
+    min_v = min(vals)
+    imbalance = max_v - min_v
+    imbalance_clamped = max(0, min(10, imbalance))
+
+    # -----------------------------
+    # 3) Score + Level
+    # -----------------------------
+    raw_score = 40 + imbalance_clamped * 6
+    score = max(10, min(95, raw_score))
+    level = max(1, min(9, round(score / 10)))
+
+    # -----------------------------
+    # 4) Labels
+    # -----------------------------
+    if level <= 3:
+        label = "Light karmic breeze"
+    elif level <= 5:
+        label = "Mixed lessons, steady growth"
+    elif level <= 7:
+        label = "Deep ancestral homework"
+    else:
+        label = "Intense soul contract this life"
+
+    # -----------------------------
+    # 5) Dominant + Weak elements
+    # -----------------------------
+    dominant = max(elements, key=lambda k: elements[k])
+    weak = min(elements, key=lambda k: elements[k])
+
+    # -----------------------------
+    # 6) Gentle summary
+    # -----------------------------
+    parts = []
+
+    parts.append(
+        f"Your chart leans strongly toward {dominant} energy, "
+        f"while {weak} energy is more subtle and quieter."
+    )
+
+    parts.append(
+        "This doesn’t mean anything is wrong — it simply reflects the type of "
+        "lessons, growth and emotional maturity you chose to experience in this lifetime."
+    )
+
+    if level <= 3:
+        parts.append(
+            "Your karmic load appears light. With small consistent merits and mindful habits, "
+            "you maintain smooth life flow."
         )
-    elif imbalance == 2:
-        level = 6
-        label = "Moderate Ancestral Load"
-        score = 60
-        summary = (
-            "Your chart shows a few strong patterns and some missing elements. "
-            "This suggests moderate karmic debts and responsibilities in this life. "
-            "Consistent merit-making and inner work will help you rebalance."
+    elif level <= 5:
+        parts.append(
+            "There is a blend of ease and challenge. As you balance your five elements "
+            "through lifestyle and merits, old patterns soften naturally."
         )
-    else:  # imbalance >= 3
-        level = 8
-        label = "Heavy Ancestral Load"
-        score = 80
-        summary = (
-            "Your elements are quite imbalanced, pointing to heavier inherited karma "
-            "and life challenges. This life is a strong 'repayment and transformation' cycle. "
-            "Deep compassion, service, and sincere repentance practices will be powerful."
+    elif level <= 7:
+        parts.append(
+            "This pattern often appears in people carrying ancestral stories. "
+            "Your merits and emotional work not only transform you, "
+            "but uplift your entire family field."
         )
+    else:
+        parts.append(
+            "This life carries a strong soul contract. With sincerity, compassion and service, "
+            "you convert heavy karmic weight into powerful spiritual merit."
+        )
+
+    summary = " ".join(parts)
 
     return {
         "level": level,
-        "label": label,
         "score": score,
+        "label": label,
+        "elements": elements,
+        "dominant_element": dominant,
+        "weak_element": weak,
         "summary": summary,
-        "elements": counts,
     }
