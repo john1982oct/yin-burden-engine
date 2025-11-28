@@ -179,7 +179,7 @@ def compute_day_pillar_real(dt: datetime) -> Pillar:
     Real BaZi day pillar.
 
     Anchor:
-      - 1982-10-02 (Gregorian) = 戊午日  (verified from your existing BaZi software)
+      - 1982-10-02 (Gregorian) = 戊午日  (verified reference)
 
     For any other date:
       - compute days difference from 1982-10-02
@@ -201,7 +201,52 @@ def compute_day_pillar_real(dt: datetime) -> Pillar:
 
 
 # ---------------------------
-# Helper for placeholder pillars (still used for HOUR for now)
+# REAL HOUR PILLAR
+# ---------------------------
+def compute_hour_pillar_real(dt: datetime, day_pillar: Pillar) -> Pillar:
+    """
+    Real BaZi hour pillar.
+
+    - Hour branch: 2-hour slots (子 23–01, 丑 01–03, ... 亥 21–23)
+    - Hour stem: 五鼠遁, depends on DAY stem:
+        甲/己 日 → 子时起甲
+        乙/庚 日 → 子时起丙
+        丙/辛 日 → 子时起戊
+        丁/壬 日 → 子时起庚
+        戊/癸 日 → 子时起壬
+      Then move one stem per branch.
+    """
+    h = dt.hour
+
+    # Map hour to index 0..11 → 子丑寅卯辰巳午未申酉戌亥
+    # 23:00–00:59 → 子 (0), 01:00–02:59 → 丑 (1), etc.
+    hour_index = ((h + 1) % 24) // 2  # integer division
+
+    branch = EARTHLY_BRANCHES[hour_index]
+
+    day_stem = day_pillar.stem
+
+    # Starting stem at 子时 based on day stem
+    if day_stem in ("甲", "己"):
+        start_stem = "甲"
+    elif day_stem in ("乙", "庚"):
+        start_stem = "丙"
+    elif day_stem in ("丙", "辛"):
+        start_stem = "戊"
+    elif day_stem in ("丁", "壬"):
+        start_stem = "庚"
+    else:  # 戊, 癸
+        start_stem = "壬"
+
+    start_index = HEAVENLY_STEMS.index(start_stem)
+    stem_index = (start_index + hour_index) % 10
+    stem = HEAVENLY_STEMS[stem_index]
+
+    return Pillar(stem=stem, branch=branch)
+
+
+# ---------------------------
+# Helper (still here in case we need generic pillars)
 # ---------------------------
 def _stem_branch_from_int(seed: int) -> Pillar:
     stem = HEAVENLY_STEMS[seed % 10]
@@ -211,7 +256,7 @@ def _stem_branch_from_int(seed: int) -> Pillar:
 
 # ---------------------------
 # Main entry currently used by app.py
-# (Year + Month + Day are real, Hour still placeholder)
+# (All four pillars now real, using our reference rules)
 # ---------------------------
 def compute_placeholder_bazi(dt: datetime) -> BaziChart:
     """
@@ -219,7 +264,7 @@ def compute_placeholder_bazi(dt: datetime) -> BaziChart:
       - Year pillar: real (with Li Chun)
       - Month pillar: real (solar month + 寅月起干)
       - Day pillar: real (anchored to 1982-10-02 = 戊午日)
-      - Hour pillar: placeholder (we'll upgrade later)
+      - Hour pillar: real (五鼠遁 + 2h branches)
     """
     # REAL year & month
     year_pillar = compute_year_pillar_basic(dt)
@@ -228,9 +273,8 @@ def compute_placeholder_bazi(dt: datetime) -> BaziChart:
     # REAL day pillar
     day_pillar = compute_day_pillar_real(dt)
 
-    # Hour pillar still placeholder
-    day_seed = dt.timetuple().tm_yday
-    hour_pillar = _stem_branch_from_int(dt.hour + day_seed * 24)
+    # REAL hour pillar
+    hour_pillar = compute_hour_pillar_real(dt, day_pillar)
 
     day_master = day_pillar.stem
 
