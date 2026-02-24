@@ -6,7 +6,11 @@
 
 from merit_engine import STEM_ELEMENT, BRANCH_ELEMENT
 
-# English → Chinese display (subtle)
+
+# ----------------------------------------
+# Element Display (English + Chinese)
+# ----------------------------------------
+
 ELEMENT_DISPLAY = {
     "Wood":  {"en": "Wood",  "zh": "木"},
     "Fire":  {"en": "Fire",  "zh": "火"},
@@ -15,7 +19,24 @@ ELEMENT_DISPLAY = {
     "Water": {"en": "Water", "zh": "水"},
 }
 
-# Keep language observational and subtle (no diagnosis claims)
+
+# ----------------------------------------
+# Visual Layer (for frontend rendering)
+# ----------------------------------------
+
+ELEMENT_VISUAL = {
+    "Wood":  {"key": "wood",  "emoji": "🌿"},
+    "Fire":  {"key": "fire",  "emoji": "🔥"},
+    "Earth": {"key": "earth", "emoji": "🜃"},
+    "Metal": {"key": "metal", "emoji": "⚙️"},
+    "Water": {"key": "water", "emoji": "💧"},
+}
+
+
+# ----------------------------------------
+# Primary Constitution Text
+# ----------------------------------------
+
 PRIMARY_CONST_TEXT = {
     "Wood": (
         "Your system expresses through movement, renewal and forward momentum. "
@@ -38,6 +59,11 @@ PRIMARY_CONST_TEXT = {
         "When balanced, you feel calm, steady and deeply replenished."
     ),
 }
+
+
+# ----------------------------------------
+# Underlying Restoration Layer Text
+# ----------------------------------------
 
 UNDERLYING_LAYER_TEXT = {
     "Wood": (
@@ -62,6 +88,11 @@ UNDERLYING_LAYER_TEXT = {
     ),
 }
 
+
+# ----------------------------------------
+# Disclaimer
+# ----------------------------------------
+
 DISCLAIMER = (
     "Disclaimer: This result is a wellness-oriented interpretation inspired by elemental philosophy. "
     "It is not medical advice and is not intended to diagnose, treat, cure, or prevent any condition. "
@@ -69,24 +100,48 @@ DISCLAIMER = (
 )
 
 
-def _display(element: str | None) -> dict | None:
+# ----------------------------------------
+# Internal Helpers
+# ----------------------------------------
+
+def _display(element):
     if not element:
         return None
     return ELEMENT_DISPLAY.get(element, {"en": element, "zh": ""})
 
 
-def generate_elemental_blueprint(chart) -> dict:
+def _visual(element):
+    if not element:
+        return None
+    return ELEMENT_VISUAL.get(element)
+
+
+# ----------------------------------------
+# Main Blueprint Generator
+# ----------------------------------------
+
+def generate_elemental_blueprint(chart):
     """
     Input: chart (from compute_placeholder_bazi)
-    Output: blueprint JSON for frontend rendering
+    Output: structured blueprint JSON for frontend rendering
     """
-    primary = STEM_ELEMENT.get(chart.day_master)              # Day Master -> element
-    underlying = BRANCH_ELEMENT.get(chart.day.branch)         # Day Branch -> element
+
+    primary = STEM_ELEMENT.get(chart.day_master)
+    underlying = BRANCH_ELEMENT.get(chart.day.branch)
 
     return {
+        "signature": f"{primary}-{underlying}" if primary and underlying else None,
+
         "primary_constitution": _display(primary),
         "underlying_restoration_layer": _display(underlying),
+
+        "visual": {
+            "primary": _visual(primary),
+            "underlying": _visual(underlying),
+        },
+
         "primary_text": PRIMARY_CONST_TEXT.get(primary),
         "underlying_text": UNDERLYING_LAYER_TEXT.get(underlying),
+
         "disclaimer": DISCLAIMER,
     }
