@@ -7,6 +7,7 @@ import random
 
 from merit_engine import calculate_merit_debt_profile, calculate_yin_burden_from_bazi
 from bazi_core import compute_placeholder_bazi, describe_bazi_chart
+from elemental_blueprint_engine import generate_elemental_blueprint
 
 app = Flask(__name__)
 
@@ -112,7 +113,34 @@ def bazi_debug():
         "bazi_chart": chart_dict,
         "note": "REAL Year/Month/Day/Hour BaZi logic used"
     })
+    
+# -------------------------------------------------------------
+# NEW: Elemental Blueprint (Primary Constitution + Underlying Layer)
+# -------------------------------------------------------------
+@app.route("/elemental-blueprint", methods=["POST"])
+def elemental_blueprint():
+    data = request.get_json(silent=True) or {}
 
+    dob_str = data.get("date_of_birth")
+    if not dob_str:
+        return jsonify({"error": "date_of_birth is required"}), 400
+
+    tob_str = data.get("time_of_birth")
+    dt = _parse_datetime_flex(dob_str, tob_str)
+
+    if dt is None:
+        return jsonify({"error": "Invalid date/time"}), 400
+
+    chart = compute_placeholder_bazi(dt)
+    blueprint = generate_elemental_blueprint(chart)
+
+    return jsonify({
+        "input": {
+            "date_of_birth": dob_str,
+            "time_of_birth": tob_str or None
+        },
+        "blueprint": blueprint
+    })
 
 # -------------------------------------------------------------
 # Yin Burden interpreted FROM BaZi
