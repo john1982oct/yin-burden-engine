@@ -4,7 +4,7 @@
 # "This tool helps you understand what’s happening in your life right now,
 # what opportunities are opening up, and what to be mindful of."
 
-from merit_engine import STEM_ELEMENT
+from merit_engine import STEM_ELEMENT, BRANCH_ELEMENT
 
 
 DAY_MASTER_PERSONALITY = {
@@ -47,6 +47,31 @@ CURRENT_PHASE_TEXT = {
         "Even if things feel uncertain on the surface, this period is helping you sense what needs healing, restoring or rethinking."
     ),
 }
+
+
+UNDERLYING_RHYTHM_TEXT = {
+    "Wood": (
+        "Underneath all this, your deeper rhythm needs movement, renewal and emotional flexibility. "
+        "When life feels too blocked or repetitive, you may feel the pressure more strongly."
+    ),
+    "Fire": (
+        "Underneath all this, your deeper rhythm responds strongly to warmth, encouragement and healthy emotional expression. "
+        "When your inner spark is suppressed for too long, your energy can feel unsettled."
+    ),
+    "Earth": (
+        "Underneath all this, your deeper rhythm seeks steadiness, emotional safety and something solid to rely on. "
+        "When life becomes too uncertain or scattered, you may feel more drained than you show."
+    ),
+    "Metal": (
+        "Underneath all this, your deeper rhythm values order, breathing space and a sense of internal clarity. "
+        "When too much feels messy or unresolved, it can quietly weigh on you."
+    ),
+    "Water": (
+        "Underneath all this, your deeper rhythm needs rest, reflection and time to process what is not visible on the surface. "
+        "Even when you look composed, deeper emotional tides may still be moving inside."
+    ),
+}
+
 
 OPPORTUNITIES_TEXT = {
     "Wood": {
@@ -106,6 +131,7 @@ OPPORTUNITIES_TEXT = {
     },
 }
 
+
 MINDFUL_TEXT = {
     "Wood": {
         "career_wealth": (
@@ -164,6 +190,7 @@ MINDFUL_TEXT = {
     },
 }
 
+
 GUIDANCE_TEXT = {
     "Wood": (
         "What helps most now is steady movement. Focus on clear direction, simple action and healthy patience."
@@ -193,7 +220,11 @@ def generate_current_phase_reading(chart):
     """
 
     day_master = chart.day_master
+    day_branch = chart.day.branch
+
     element = STEM_ELEMENT.get(day_master, "Unknown")
+    underlying_element = BRANCH_ELEMENT.get(day_branch, "Unknown")
+
     personality = DAY_MASTER_PERSONALITY.get(
         day_master,
         "You have your own unique way of approaching life and challenges."
@@ -202,6 +233,11 @@ def generate_current_phase_reading(chart):
     current_phase = CURRENT_PHASE_TEXT.get(
         element,
         "You are in a period of transition where deeper self-understanding becomes especially important."
+    )
+
+    underlying_rhythm = UNDERLYING_RHYTHM_TEXT.get(
+        underlying_element,
+        "At a deeper level, your inner rhythm may be asking for more awareness, steadiness and self-understanding."
     )
 
     opportunities = OPPORTUNITIES_TEXT.get(
@@ -234,9 +270,11 @@ def generate_current_phase_reading(chart):
         ),
         "day_master": day_master,
         "day_master_element": element,
+        "day_branch": day_branch,
+        "day_branch_element": underlying_element,
         "current_phase": {
             "title": "What’s Happening In Your Life Right Now",
-            "summary": f"{personality} {current_phase}"
+            "summary": f"{personality} {current_phase} {underlying_rhythm}"
         },
         "opportunities": {
             "title": "Opportunities Opening Up",
