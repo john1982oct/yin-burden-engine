@@ -19,11 +19,11 @@ DAY_MASTER_PERSONALITY = {
 
 
 CURRENT_PHASE_TEXT = {
-    "Wood": "You are in a phase where growth, change and forward movement feel especially important.",
-    "Fire": "You are in a phase where expression, visibility and emotional energy become more active.",
-    "Earth": "You are in a phase where stability, responsibility and long-term foundations matter more.",
-    "Metal": "You are in a phase where structure, decisions and clarity become more noticeable.",
-    "Water": "You are in a phase where reflection, intuition and inner adjustment become more important.",
+    "Wood": "Right now, growth, change and forward movement feel especially important.",
+    "Fire": "Right now, expression, visibility and emotional energy become more active.",
+    "Earth": "Right now, stability, responsibility and long-term foundations matter more.",
+    "Metal": "Right now, structure, decisions and clarity become more noticeable.",
+    "Water": "Right now, reflection, intuition and inner adjustment become more important.",
 }
 
 
@@ -37,60 +37,60 @@ UNDERLYING_RHYTHM_TEXT = {
 
 
 YEAR_FEELING = {
-    "same": "This year feels more intense — whatever you are experiencing tends to become stronger.",
-    "produces": "This year feels smoother — things may flow more naturally without forcing.",
-    "controls": "This year may feel pressuring — you may be pushed to step up or handle more.",
-    "drains": "This year can feel busy — a lot of your energy may go into doing and giving.",
-    "controlled_by": "This year may feel slightly restrictive — things may not move fully your way.",
+    "same": "This year feels more intense — whatever is already happening in your life may feel stronger and harder to ignore.",
+    "produces": "This year feels smoother — things may flow more naturally when you stop forcing every step.",
+    "controls": "This year may feel pressuring — you may be pushed to step up, respond faster, or handle more than usual.",
+    "drains": "This year can feel busy — a lot of your energy may go into doing, giving, and showing up.",
+    "controlled_by": "This year may feel slightly restrictive — things may not move fully your way, but there is still something important to learn here.",
 }
 
 YEAR_OPPORTUNITY = {
-    "same": "You can make strong progress if you use your strengths well.",
-    "produces": "You may find things aligning more easily when you take action.",
-    "controls": "Pressure can become growth if you handle it well.",
-    "drains": "Opportunities come through action and showing up.",
-    "controlled_by": "You can refine yourself and become sharper this year.",
+    "same": "You can make strong progress if you use your natural strengths with maturity.",
+    "produces": "You may find doors opening more easily when you take clear, steady action.",
+    "controls": "Pressure can become growth if you respond with steadiness instead of panic.",
+    "drains": "Opportunities come through action, consistency, and staying engaged with life.",
+    "controlled_by": "You can refine yourself, sharpen your priorities, and become clearer about what matters.",
 }
 
 YEAR_MINDFUL = {
-    "same": "Be mindful of overdoing or repeating patterns too strongly.",
-    "produces": "Be mindful of becoming too comfortable.",
-    "controls": "Be mindful of stress and reacting too quickly.",
-    "drains": "Be mindful of burnout and overcommitment.",
-    "controlled_by": "Be mindful of frustration and impatience.",
+    "same": "Be mindful of overdoing things or repeating old patterns too strongly.",
+    "produces": "Be mindful of becoming too comfortable and waiting too long to act.",
+    "controls": "Be mindful of stress, impatience, and reacting too quickly.",
+    "drains": "Be mindful of burnout, overcommitment, or giving more than you can sustain.",
+    "controlled_by": "Be mindful of frustration, resistance, and taking delays too personally.",
 }
 
 
 DECADE_RELATION_TEXT = {
     "same": {
-        "summary": "This chapter of life is asking you to become more fully yourself. Old roles that no longer fit may feel harder to carry now.",
-        "opportunity": "The opportunity in this period is self-trust, clearer identity and living with less pretending.",
-        "mindful": "Be mindful of becoming too rigid or feeling like everything depends on you alone.",
+        "summary": "You may notice parts of your life intensifying — the same patterns, emotions or situations keep showing up more strongly. It can feel like you’re being pushed to face yourself more honestly.",
+        "opportunity": "This is a powerful period to step into your true identity and stop shrinking yourself just to fit.",
+        "mindful": "Be mindful of reacting too strongly or repeating the same patterns without making a real change.",
     },
     "resource": {
-        "summary": "This chapter has a supportive undercurrent. Life may be quietly helping you rebuild energy, confidence or direction from the inside out.",
-        "opportunity": "The opportunity here is healing, learning and creating a stronger foundation for what comes next.",
-        "mindful": "Be mindful of staying too comfortable for too long or waiting endlessly before taking action.",
+        "summary": "Things may not look dramatic on the outside, but something is quietly rebuilding within you. You may feel the need to slow down, reflect, or reset certain parts of your life.",
+        "opportunity": "This is a good period to strengthen your foundation — emotionally, mentally, or in your direction.",
+        "mindful": "Be mindful of staying in preparation mode for too long without eventually moving forward.",
     },
     "output": {
-        "summary": "This chapter wants expression. You may feel a stronger pull to speak up, create, share or show more of your real self.",
-        "opportunity": "The opportunity is visibility, momentum and meaningful self-expression.",
-        "mindful": "Be mindful of burnout, emotional over-giving or saying yes to too many things at once.",
+        "summary": "You may feel a growing urge to express yourself more — through your work, choices, or the way you show up in life. Holding things in may start to feel harder than before.",
+        "opportunity": "This is a strong period for visibility, creation, and showing more of your real self.",
+        "mindful": "Be mindful of overextending yourself or giving too much without enough recovery.",
     },
     "control": {
-        "summary": "This chapter is about shaping your world more intentionally. Themes around responsibility, money, decisions or structure may become stronger.",
-        "opportunity": "The opportunity is maturity, stability and learning how to direct your energy with purpose.",
-        "mindful": "Be mindful of becoming overly controlling, emotionally guarded or too harsh on yourself.",
+        "summary": "You may notice yourself becoming more focused on control, stability, or getting things in order. There can be stronger pressure to handle responsibilities, finances, or long-term decisions properly.",
+        "opportunity": "This is a powerful period to build something solid — whether in career, structure, or life direction.",
+        "mindful": "Be mindful of becoming too hard on yourself or trying to control everything around you.",
     },
     "pressure": {
-        "summary": "This chapter may feel like life is testing your strength and honesty. External pressure or unavoidable change may push you to grow faster.",
-        "opportunity": "The opportunity is deep resilience, sharper discernment and becoming stronger without losing your heart.",
-        "mindful": "Be mindful of stress, self-doubt or feeling like you always have to hold everything together.",
+        "summary": "Life may feel like it’s pushing you harder than before. Expectations, responsibilities, or unexpected challenges can make things feel heavier or more intense.",
+        "opportunity": "This period can build real strength, resilience, and clarity about what truly matters.",
+        "mindful": "Be mindful of stress, burnout, or feeling like you must carry everything alone.",
     },
     "unknown": {
-        "summary": "This chapter carries a meaningful shift in direction. Life is reorganising your priorities in ways that may only become clear over time.",
-        "opportunity": "The opportunity is greater clarity and alignment with what truly matters.",
-        "mindful": "Be mindful of resisting change just because the old version felt familiar.",
+        "summary": "You may feel like things are shifting, even if you cannot fully explain it yet. Certain areas of life may be changing direction quietly.",
+        "opportunity": "This is a time to stay open and allow new direction to unfold naturally.",
+        "mindful": "Be mindful of resisting change just because it feels unfamiliar.",
     },
 }
 
@@ -135,7 +135,7 @@ def _relation_of_year_to_day_master(dm_element: str, year_element: str) -> str:
         "Metal": "Earth",
         "Water": "Metal",
     }
-    if produces_map[dm_element] == year_element:
+    if produces_map.get(dm_element) == year_element:
         return "produces"
 
     controls_map = {
@@ -145,7 +145,7 @@ def _relation_of_year_to_day_master(dm_element: str, year_element: str) -> str:
         "Metal": "Wood",
         "Water": "Fire",
     }
-    if controls_map[dm_element] == year_element:
+    if controls_map.get(dm_element) == year_element:
         return "drains"
 
     controlled_by_map = {
@@ -155,7 +155,7 @@ def _relation_of_year_to_day_master(dm_element: str, year_element: str) -> str:
         "Metal": "Fire",
         "Water": "Earth",
     }
-    if controlled_by_map[dm_element] == year_element:
+    if controlled_by_map.get(dm_element) == year_element:
         return "controls"
 
     return "controlled_by"
@@ -172,7 +172,7 @@ def _current_year_info():
 
 def _get_month_stem_branch(chart):
     """
-    Supports a few possible chart shapes safely.
+    Safely supports a few possible chart shapes.
     """
     if hasattr(chart, "month") and hasattr(chart.month, "stem") and hasattr(chart.month, "branch"):
         return chart.month.stem, chart.month.branch
@@ -194,7 +194,7 @@ def _get_da_yun_period_index(birth_dt: datetime) -> int:
     Light Da Yun layer only:
     - still approximate
     - first 10-year cycle starts around age 10
-    - keeps things stable before true start-age logic
+    - enough for a lead magnet without full traditional complexity
     """
     age = _get_age(birth_dt)
 
@@ -223,8 +223,8 @@ def _get_light_da_yun_pillar(chart, birth_dt: datetime):
     Light Da Yun approximation:
     - uses month pillar as base
     - moves forward one pillar per 10-year period
-    - does NOT yet do forward/reverse direction
-    - does NOT yet do exact traditional Da Yun start age
+    - does NOT yet handle forward/reverse direction
+    - does NOT yet calculate exact traditional Da Yun start age
     """
     month_stem, month_branch = _get_month_stem_branch(chart)
     period_index = _get_da_yun_period_index(birth_dt)
@@ -315,7 +315,7 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
     )
     phase = CURRENT_PHASE_TEXT.get(
         element,
-        "You are in a phase where change and adjustment are becoming more noticeable.",
+        "Change and adjustment are becoming more noticeable in this phase of life.",
     )
     underlying_text = UNDERLYING_RHYTHM_TEXT.get(
         underlying,
@@ -341,11 +341,13 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
     decade_data = _get_current_decade_data(chart, birth_dt, element)
     decade = decade_data["text"]
 
+    current_phase_summary = f"{personality} {phase} {underlying_text}"
+
     return {
         "tool_role": "This tool helps you understand what’s happening in your life right now, what opportunities are opening up, and what to be mindful of.",
         "current_phase": {
             "title": "What’s Happening In Your Life Right Now",
-            "summary": f"{personality} {phase} {underlying_text}",
+            "summary": current_phase_summary,
         },
         "this_year": {
             "title": "What This Year Is Bringing",
@@ -363,6 +365,6 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
         },
         "cta": {
             "title": "Go Deeper",
-            "summary": "This is a surface-level reading. A full chart reading can reveal deeper timing and patterns behind your life.",
+            "summary": "This gives you a surface-level view of what is active in your life right now. A full reading can uncover the deeper timing, patterns and relationship themes behind it.",
         },
     }
