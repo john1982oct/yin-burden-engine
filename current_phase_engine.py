@@ -19,20 +19,20 @@ DAY_MASTER_PERSONALITY = {
 
 
 CURRENT_PHASE_TEXT = {
-    "Wood": "At this stage, growth, change and forward movement may feel especially important to you.",
-    "Fire": "At this stage, expression, visibility and emotional energy may feel more active than usual.",
-    "Earth": "At this stage, stability, responsibility and long-term foundations may feel more important than before.",
-    "Metal": "At this stage, structure, decisions and clarity may be asking for more of your attention.",
-    "Water": "At this stage, reflection, intuition and inner adjustment may feel more important than what is happening on the surface.",
+    "Wood": "Right now, growth, change and forward movement feel especially important.",
+    "Fire": "Right now, expression, visibility and emotional energy become more active.",
+    "Earth": "Right now, stability, responsibility and long-term foundations matter more.",
+    "Metal": "Right now, structure, decisions and clarity become more noticeable.",
+    "Water": "Right now, reflection, intuition and inner adjustment become more important.",
 }
 
 
 UNDERLYING_RHYTHM_TEXT = {
-    "Wood": "Underneath it all, you need movement and a sense of progress.",
-    "Fire": "Underneath it all, you need warmth, encouragement and room to express what you really feel.",
-    "Earth": "Underneath it all, you need stability and something you can rely on emotionally.",
-    "Metal": "Underneath it all, you need clarity, quiet and space to sort things out properly.",
-    "Water": "Underneath it all, you need quiet time to process, retreat and recharge.",
+    "Wood": "Deep down, you need movement and progress.",
+    "Fire": "Deep down, you need warmth, encouragement and room to express what you really feel.",
+    "Earth": "Deep down, you need stability and something you can rely on emotionally.",
+    "Metal": "Deep down, you need clarity, quiet and space to sort things out properly.",
+    "Water": "Deep down, you need quiet time to process, retreat and recharge.",
 }
 
 
@@ -269,8 +269,8 @@ def _build_current_phase_summary(personality: str, phase: str, underlying_text: 
     underlying_clean = underlying_text.rstrip(".")
 
     return (
-        f"{personality_clean}, and lately you may be feeling that {phase_clean.lower()} "
-        f"{underlying_clean.lower()}."
+        f"{personality_clean}. {phase_clean} "
+        f"{underlying_clean}."
     )
 
 
@@ -287,11 +287,11 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
     )
     phase = CURRENT_PHASE_TEXT.get(
         element,
-        "At this stage, change and adjustment may be becoming more noticeable.",
+        "Right now, change and adjustment are becoming more noticeable.",
     )
     underlying_text = UNDERLYING_RHYTHM_TEXT.get(
         underlying,
-        "Underneath it all, you may need more space, clarity and emotional steadiness.",
+        "Deep down, you may need more space, clarity and emotional steadiness.",
     )
 
     year_info = _current_year_info()
