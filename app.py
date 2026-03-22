@@ -8,6 +8,7 @@ import random
 from merit_engine import calculate_merit_debt_profile, calculate_yin_burden_from_bazi
 from bazi_core import compute_placeholder_bazi, describe_bazi_chart
 from elemental_blueprint_engine import generate_elemental_blueprint
+from current_phase_engine import generate_current_phase_reading
 
 app = Flask(__name__)
 
@@ -56,8 +57,10 @@ def home():
         "endpoints": [
             "/yin-burden",
             "/bazi-debug",
+            "/elemental-blueprint",
             "/yin-burden-bazi",
-            "/bazi_decades"
+            "/bazi_decades",
+            "/current-phase"
         ]
     })
 
@@ -113,7 +116,8 @@ def bazi_debug():
         "bazi_chart": chart_dict,
         "note": "REAL Year/Month/Day/Hour BaZi logic used"
     })
-    
+
+
 # -------------------------------------------------------------
 # NEW: Elemental Blueprint (Primary Constitution + Underlying Layer)
 # -------------------------------------------------------------
@@ -141,6 +145,7 @@ def elemental_blueprint():
         },
         "blueprint": blueprint
     })
+
 
 # -------------------------------------------------------------
 # Yin Burden interpreted FROM BaZi
@@ -233,6 +238,35 @@ def bazi_decades():
         "chart_type": "demo_decade_profile",
         "favorable_gods": ["食神", "偏财"],
         "decades": decades
+    })
+
+
+# -------------------------------------------------------------
+# NEW: Current Life Phase Reading (Lead Magnet Tool)
+# -------------------------------------------------------------
+@app.route("/current-phase", methods=["POST"])
+def current_phase():
+    data = request.get_json(silent=True) or {}
+
+    birth_date = data.get("birth_date")
+    birth_time = data.get("birth_time")
+
+    if not birth_date:
+        return jsonify({"error": "birth_date is required"}), 400
+
+    dt = _parse_datetime_flex(birth_date, birth_time)
+    if dt is None:
+        return jsonify({"error": "Invalid birth_date/birth_time"}), 400
+
+    chart = compute_placeholder_bazi(dt)
+    reading = generate_current_phase_reading(chart)
+
+    return jsonify({
+        "input": {
+            "birth_date": birth_date,
+            "birth_time": birth_time
+        },
+        "reading": reading
     })
 
 
