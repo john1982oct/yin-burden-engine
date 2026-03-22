@@ -218,7 +218,59 @@ def _shift_branch(branch: str, steps: int) -> str:
     return BRANCHES[(idx + steps) % 12]
 
 
-def _get_current_decade_text(chart, birth_dt: datetime, day_master_element: str):
+def _get_light_da_yun_pillar(chart, birth_dt: datetime):
+    """
+    Light Da Yun approximation:
+    - uses month pillar as base
+    - moves forward one pillar per 10-year period
+    - does NOT yet do forward/reverse direction
+    - does NOT yet do exact traditional Da Yun start age
+    """
+    month_stem, month_branch = _get_month_stem_branch(chart)
+    period_index = _get_da_yun_period_index(birth_dt)
+
+    if not month_stem or not month_branch:
+        return {
+            "index": period_index,
+            "stem": None,
+            "branch": None,
+            "pillar": None,
+        }
+
+    da_yun_stem = _shift_stem(month_stem, period_index)
+    da_yun_branch = _shift_branch(month_branch, period_index)
+
+    return {
+        "index": period_index,
+        "stem": da_yun_stem,
+        "branch": da_yun_branch,
+        "pillar": f"{da_yun_stem}{da_yun_branch}",
+    }
+
+
+def _get_element_relation(day_master_element: str, other_element: str) -> str:
+    """
+    Human-usable relation naming for decade interpretation.
+    """
+    if day_master_element == other_element:
+        return "same"
+
+    if ELEMENT_GENERATES.get(other_element) == day_master_element:
+        return "resource"
+
+    if ELEMENT_GENERATES.get(day_master_element) == other_element:
+        return "output"
+
+    if ELEMENT_CONTROLS.get(day_master_element) == other_element:
+        return "control"
+
+    if ELEMENT_CONTROLS.get(other_element) == day_master_element:
+        return "pressure"
+
+    return "unknown"
+
+
+def _get_current_decade_data(chart, birth_dt: datetime, day_master_element: str):
     da_yun = _get_light_da_yun_pillar(chart, birth_dt)
 
     if not da_yun["stem"]:
@@ -248,40 +300,6 @@ def _get_current_decade_text(chart, birth_dt: datetime, day_master_element: str)
             "relation": relation,
         },
     }
-
-
-def _get_element_relation(day_master_element: str, other_element: str) -> str:
-    """
-    Human-usable relation naming for decade interpretation.
-    """
-    if day_master_element == other_element:
-        return "same"
-
-    if ELEMENT_GENERATES.get(other_element) == day_master_element:
-        return "resource"
-
-    if ELEMENT_GENERATES.get(day_master_element) == other_element:
-        return "output"
-
-    if ELEMENT_CONTROLS.get(day_master_element) == other_element:
-        return "control"
-
-    if ELEMENT_CONTROLS.get(other_element) == day_master_element:
-        return "pressure"
-
-    return "unknown"
-
-
-def _get_current_decade_text(chart, birth_dt: datetime, day_master_element: str):
-    da_yun = _get_light_da_yun_pillar(chart, birth_dt)
-
-    if not da_yun["stem"]:
-        return DECADE_RELATION_TEXT["unknown"]
-
-    da_yun_element = STEM_ELEMENT.get(da_yun["stem"], "Unknown")
-    relation = _get_element_relation(day_master_element, da_yun_element)
-
-    return DECADE_RELATION_TEXT.get(relation, DECADE_RELATION_TEXT["unknown"])
 
 
 def generate_current_phase_reading(chart, birth_dt: datetime):
@@ -320,7 +338,8 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
         "Be mindful of imbalance and how you use your energy.",
     )
 
-    decade = _get_current_decade_text(chart, birth_dt, element)
+    decade_data = _get_current_decade_data(chart, birth_dt, element)
+    decade = decade_data["text"]
 
     return {
         "tool_role": "This tool helps you understand what’s happening in your life right now, what opportunities are opening up, and what to be mindful of.",
@@ -340,6 +359,7 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
             "summary": decade["summary"],
             "opportunity": decade["opportunity"],
             "mindful_of": decade["mindful"],
+            "debug": decade_data["debug"],
         },
         "cta": {
             "title": "Go Deeper",
