@@ -19,20 +19,20 @@ DAY_MASTER_PERSONALITY = {
 
 
 CURRENT_PHASE_TEXT = {
-    "Wood": "Right now, growth, change and forward movement feel especially important.",
-    "Fire": "Right now, expression, visibility and emotional energy become more active.",
-    "Earth": "Right now, stability, responsibility and long-term foundations matter more.",
-    "Metal": "Right now, structure, decisions and clarity become more noticeable.",
-    "Water": "Right now, reflection, intuition and inner adjustment become more important.",
+    "Wood": "At this stage, growth, change and forward movement may feel especially important to you.",
+    "Fire": "At this stage, expression, visibility and emotional energy may feel more active than usual.",
+    "Earth": "At this stage, stability, responsibility and long-term foundations may feel more important than before.",
+    "Metal": "At this stage, structure, decisions and clarity may be asking for more of your attention.",
+    "Water": "At this stage, reflection, intuition and inner adjustment may feel more important than what is happening on the surface.",
 }
 
 
 UNDERLYING_RHYTHM_TEXT = {
-    "Wood": "Deep down, you need movement and progress.",
-    "Fire": "Deep down, you need warmth, encouragement and space to express yourself.",
-    "Earth": "Deep down, you need stability and something you can rely on emotionally.",
-    "Metal": "Deep down, you need clarity and space to think.",
-    "Water": "Deep down, you need quiet time to process and recharge.",
+    "Wood": "Underneath it all, you need movement and a sense of progress.",
+    "Fire": "Underneath it all, you need warmth, encouragement and room to express what you really feel.",
+    "Earth": "Underneath it all, you need stability and something you can rely on emotionally.",
+    "Metal": "Underneath it all, you need clarity, quiet and space to sort things out properly.",
+    "Water": "Underneath it all, you need quiet time to process, retreat and recharge.",
 }
 
 
@@ -171,9 +171,6 @@ def _current_year_info():
 
 
 def _get_month_stem_branch(chart):
-    """
-    Safely supports a few possible chart shapes.
-    """
     if hasattr(chart, "month") and hasattr(chart.month, "stem") and hasattr(chart.month, "branch"):
         return chart.month.stem, chart.month.branch
 
@@ -190,12 +187,6 @@ def _get_month_stem_branch(chart):
 
 
 def _get_da_yun_period_index(birth_dt: datetime) -> int:
-    """
-    Light Da Yun layer only:
-    - still approximate
-    - first 10-year cycle starts around age 10
-    - enough for a lead magnet without full traditional complexity
-    """
     age = _get_age(birth_dt)
 
     if age < 10:
@@ -219,13 +210,6 @@ def _shift_branch(branch: str, steps: int) -> str:
 
 
 def _get_light_da_yun_pillar(chart, birth_dt: datetime):
-    """
-    Light Da Yun approximation:
-    - uses month pillar as base
-    - moves forward one pillar per 10-year period
-    - does NOT yet handle forward/reverse direction
-    - does NOT yet calculate exact traditional Da Yun start age
-    """
     month_stem, month_branch = _get_month_stem_branch(chart)
     period_index = _get_da_yun_period_index(birth_dt)
 
@@ -249,9 +233,6 @@ def _get_light_da_yun_pillar(chart, birth_dt: datetime):
 
 
 def _get_element_relation(day_master_element: str, other_element: str) -> str:
-    """
-    Human-usable relation naming for decade interpretation.
-    """
     if day_master_element == other_element:
         return "same"
 
@@ -282,6 +263,17 @@ def _get_current_decade_text(chart, birth_dt: datetime, day_master_element: str)
     return DECADE_RELATION_TEXT.get(relation, DECADE_RELATION_TEXT["unknown"])
 
 
+def _build_current_phase_summary(personality: str, phase: str, underlying_text: str) -> str:
+    personality_clean = personality.rstrip(".")
+    phase_clean = phase.rstrip(".")
+    underlying_clean = underlying_text.rstrip(".")
+
+    return (
+        f"{personality_clean}, and lately you may be feeling that {phase_clean.lower()} "
+        f"{underlying_clean.lower()}."
+    )
+
+
 def generate_current_phase_reading(chart, birth_dt: datetime):
     day_master = chart.day_master
     day_branch = chart.day.branch
@@ -295,11 +287,11 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
     )
     phase = CURRENT_PHASE_TEXT.get(
         element,
-        "Change and adjustment are becoming more noticeable in this phase of life.",
+        "At this stage, change and adjustment may be becoming more noticeable.",
     )
     underlying_text = UNDERLYING_RHYTHM_TEXT.get(
         underlying,
-        "Deep down, you may need more space, clarity and emotional steadiness.",
+        "Underneath it all, you may need more space, clarity and emotional steadiness.",
     )
 
     year_info = _current_year_info()
@@ -319,8 +311,7 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
     )
 
     decade = _get_current_decade_text(chart, birth_dt, element)
-
-    current_phase_summary = f"{personality} {phase} {underlying_text}"
+    current_phase_summary = _build_current_phase_summary(personality, phase, underlying_text)
 
     return {
         "current_phase": {
