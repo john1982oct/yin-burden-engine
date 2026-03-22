@@ -155,23 +155,48 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
     day_master = chart.day_master
     day_branch = chart.day.branch
 
-    element = STEM_ELEMENT.get(day_master)
-    underlying = BRANCH_ELEMENT.get(day_branch)
+    element = STEM_ELEMENT.get(day_master, "Unknown")
+    underlying = BRANCH_ELEMENT.get(day_branch, "Unknown")
 
-    personality = DAY_MASTER_PERSONALITY.get(day_master)
-    phase = CURRENT_PHASE_TEXT.get(element)
-    underlying_text = UNDERLYING_RHYTHM_TEXT.get(underlying)
+    personality = DAY_MASTER_PERSONALITY.get(
+        day_master,
+        "You have your own natural way of responding to life.",
+    )
+    phase = CURRENT_PHASE_TEXT.get(
+        element,
+        "You are in a phase where change and adjustment are becoming more noticeable.",
+    )
+    underlying_text = UNDERLYING_RHYTHM_TEXT.get(
+        underlying,
+        "Deep down, you may need more space, clarity and emotional steadiness.",
+    )
 
     year_info = _current_year_info()
     relation = _relation_of_year_to_day_master(element, year_info["element"])
 
-    year_summary = YEAR_FEELING.get(relation)
-    year_opportunity = YEAR_OPPORTUNITY.get(relation)
-    year_mindful = YEAR_MINDFUL.get(relation)
+    year_summary = YEAR_FEELING.get(
+        relation,
+        "This year brings a mix of movement, adjustment and learning.",
+    )
+    year_opportunity = YEAR_OPPORTUNITY.get(
+        relation,
+        "There are still useful openings if you move with awareness.",
+    )
+    year_mindful = YEAR_MINDFUL.get(
+        relation,
+        "Be mindful of imbalance and how you use your energy.",
+    )
 
     age = _get_age(birth_dt)
     decade_key = _get_decade_bucket(age)
-    decade = DECADE_PHASE.get(decade_key)
+    decade = DECADE_PHASE.get(
+        decade_key,
+        {
+            "summary": "This phase of life is about adjusting what matters most to you.",
+            "opportunity": "You have room to become clearer and more intentional.",
+            "mindful": "Be mindful of drifting away from what truly matters.",
+        },
+    )
 
     return {
         "tool_role": "This tool helps you understand what’s happening in your life right now, what opportunities are opening up, and what to be mindful of.",
