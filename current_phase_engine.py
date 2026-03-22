@@ -323,7 +323,6 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
     current_phase_summary = f"{personality} {phase} {underlying_text}"
 
     return {
-        "tool_role": "This tool helps you understand what’s happening in your life right now, what opportunities are opening up, and what to be mindful of.",
         "current_phase": {
             "title": "What’s Happening In Your Life Right Now",
             "summary": current_phase_summary,
@@ -343,6 +342,6 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
         },
         "cta": {
             "title": "Go Deeper",
-            "summary": "This gives you a surface-level view of what is active in your life right now. A full reading can uncover the deeper timing, patterns and relationship themes behind it.",
+            "summary": "This is only the surface of your timing. A full reading can show why these patterns are happening, what is opening next, and how to move through it with more clarity.",
         },
     }
