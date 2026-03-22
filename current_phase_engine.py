@@ -270,36 +270,16 @@ def _get_element_relation(day_master_element: str, other_element: str) -> str:
     return "unknown"
 
 
-def _get_current_decade_data(chart, birth_dt: datetime, day_master_element: str):
+def _get_current_decade_text(chart, birth_dt: datetime, day_master_element: str):
     da_yun = _get_light_da_yun_pillar(chart, birth_dt)
 
     if not da_yun["stem"]:
-        return {
-            "text": DECADE_RELATION_TEXT["unknown"],
-            "debug": {
-                "period_index": da_yun["index"],
-                "da_yun_stem": da_yun["stem"],
-                "da_yun_branch": da_yun["branch"],
-                "da_yun_pillar": da_yun["pillar"],
-                "da_yun_element": None,
-                "relation": "unknown",
-            },
-        }
+        return DECADE_RELATION_TEXT["unknown"]
 
     da_yun_element = STEM_ELEMENT.get(da_yun["stem"], "Unknown")
     relation = _get_element_relation(day_master_element, da_yun_element)
 
-    return {
-        "text": DECADE_RELATION_TEXT.get(relation, DECADE_RELATION_TEXT["unknown"]),
-        "debug": {
-            "period_index": da_yun["index"],
-            "da_yun_stem": da_yun["stem"],
-            "da_yun_branch": da_yun["branch"],
-            "da_yun_pillar": da_yun["pillar"],
-            "da_yun_element": da_yun_element,
-            "relation": relation,
-        },
-    }
+    return DECADE_RELATION_TEXT.get(relation, DECADE_RELATION_TEXT["unknown"])
 
 
 def generate_current_phase_reading(chart, birth_dt: datetime):
@@ -338,8 +318,7 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
         "Be mindful of imbalance and how you use your energy.",
     )
 
-    decade_data = _get_current_decade_data(chart, birth_dt, element)
-    decade = decade_data["text"]
+    decade = _get_current_decade_text(chart, birth_dt, element)
 
     current_phase_summary = f"{personality} {phase} {underlying_text}"
 
@@ -361,7 +340,6 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
             "summary": decade["summary"],
             "opportunity": decade["opportunity"],
             "mindful_of": decade["mindful"],
-            "debug": decade_data["debug"],
         },
         "cta": {
             "title": "Go Deeper",
