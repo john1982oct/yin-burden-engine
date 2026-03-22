@@ -19,11 +19,11 @@ DAY_MASTER_PERSONALITY = {
 
 
 CURRENT_PHASE_TEXT = {
-    "Wood": "You are in a phase where growth, change and forward movement feel especially important.",
-    "Fire": "You are in a phase where expression, visibility and emotional energy become more active.",
-    "Earth": "You are in a phase where stability, responsibility and long-term foundations matter more.",
-    "Metal": "You are in a phase where structure, decisions and clarity become more noticeable.",
-    "Water": "You are in a phase where reflection, intuition and inner adjustment become more important.",
+    "Wood": "Right now, growth, change and forward movement feel especially important.",
+    "Fire": "Right now, expression, visibility and emotional energy become more active.",
+    "Earth": "Right now, stability, responsibility and long-term foundations matter more.",
+    "Metal": "Right now, structure, decisions and clarity become more noticeable.",
+    "Water": "Right now, reflection, intuition and inner adjustment become more important.",
 }
 
 
@@ -37,27 +37,27 @@ UNDERLYING_RHYTHM_TEXT = {
 
 
 YEAR_FEELING = {
-    "same": "This year feels more intense — whatever you are experiencing tends to become stronger.",
-    "produces": "This year feels smoother — things may flow more naturally without forcing.",
-    "controls": "This year may feel pressuring — you may be pushed to step up or handle more.",
-    "drains": "This year can feel busy — a lot of your energy may go into doing and giving.",
-    "controlled_by": "This year may feel slightly restrictive — things may not move fully your way.",
+    "same": "This year feels more intense — whatever is already happening in your life may feel stronger and harder to ignore.",
+    "produces": "This year feels smoother — things may flow more naturally when you stop forcing every step.",
+    "controls": "This year may feel pressuring — you may be pushed to step up, respond faster, or handle more than usual.",
+    "drains": "This year can feel busy — a lot of your energy may go into doing, giving, and showing up.",
+    "controlled_by": "This year may feel slightly restrictive — things may not move fully your way, but there is still something important to learn here.",
 }
 
 YEAR_OPPORTUNITY = {
-    "same": "You can make strong progress if you use your strengths well.",
-    "produces": "You may find things aligning more easily when you take action.",
-    "controls": "Pressure can become growth if you handle it well.",
-    "drains": "Opportunities come through action and showing up.",
-    "controlled_by": "You can refine yourself and become sharper this year.",
+    "same": "You can make strong progress if you use your natural strengths with maturity.",
+    "produces": "You may find doors opening more easily when you take clear, steady action.",
+    "controls": "Pressure can become growth if you respond with steadiness instead of panic.",
+    "drains": "Opportunities come through action, consistency, and staying engaged with life.",
+    "controlled_by": "You can refine yourself, sharpen your priorities, and become clearer about what matters.",
 }
 
 YEAR_MINDFUL = {
-    "same": "Be mindful of overdoing or repeating patterns too strongly.",
-    "produces": "Be mindful of becoming too comfortable.",
-    "controls": "Be mindful of stress and reacting too quickly.",
-    "drains": "Be mindful of burnout and overcommitment.",
-    "controlled_by": "Be mindful of frustration and impatience.",
+    "same": "Be mindful of overdoing things or repeating old patterns too strongly.",
+    "produces": "Be mindful of becoming too comfortable and waiting too long to act.",
+    "controls": "Be mindful of stress, impatience, and reacting too quickly.",
+    "drains": "Be mindful of burnout, overcommitment, or giving more than you can sustain.",
+    "controlled_by": "Be mindful of frustration, resistance, and taking delays too personally.",
 }
 
 
@@ -315,7 +315,7 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
     )
     phase = CURRENT_PHASE_TEXT.get(
         element,
-        "You are in a phase where change and adjustment are becoming more noticeable.",
+        "Change and adjustment are becoming more noticeable in this phase of life.",
     )
     underlying_text = UNDERLYING_RHYTHM_TEXT.get(
         underlying,
@@ -341,11 +341,13 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
     decade_data = _get_current_decade_data(chart, birth_dt, element)
     decade = decade_data["text"]
 
+    current_phase_summary = f"{personality} {phase} {underlying_text}"
+
     return {
         "tool_role": "This tool helps you understand what’s happening in your life right now, what opportunities are opening up, and what to be mindful of.",
         "current_phase": {
             "title": "What’s Happening In Your Life Right Now",
-            "summary": f"{personality} {phase} {underlying_text}",
+            "summary": current_phase_summary,
         },
         "this_year": {
             "title": "What This Year Is Bringing",
@@ -363,6 +365,6 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
         },
         "cta": {
             "title": "Go Deeper",
-            "summary": "This is a surface-level reading. A full chart reading can reveal deeper timing and patterns behind your life.",
+            "summary": "This gives you a surface-level view of what is active in your life right now. A full reading can uncover the deeper timing, patterns and relationship themes behind it.",
         },
     }
