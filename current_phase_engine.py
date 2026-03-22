@@ -36,9 +36,6 @@ UNDERLYING_RHYTHM_TEXT = {
 }
 
 
-# -----------------------------
-# YEAR FEELING (human version)
-# -----------------------------
 YEAR_FEELING = {
     "same": "This year feels more intense — whatever you are experiencing tends to become stronger.",
     "produces": "This year feels smoother — things may flow more naturally without forcing.",
@@ -64,39 +61,40 @@ YEAR_MINDFUL = {
 }
 
 
-# -----------------------------
-# NEW: DECADE (life stage layer)
-# -----------------------------
 DECADE_PHASE = {
     "20s": {
         "summary": "This phase of life is about exploration, trial and discovering your direction.",
         "opportunity": "You have room to try, learn and pivot without being locked in yet.",
-        "mindful": "Be mindful of drifting too long without building something stable."
+        "mindful": "Be mindful of drifting too long without building something stable.",
     },
     "30s": {
         "summary": "This phase is about building, stabilising and making more solid life decisions.",
         "opportunity": "This is a powerful time to establish career, relationships and long-term direction.",
-        "mindful": "Be mindful of pressure, comparison or feeling like you must rush everything."
+        "mindful": "Be mindful of pressure, comparison or feeling like you must rush everything.",
     },
     "40s": {
         "summary": "This phase is about refinement, alignment and adjusting what truly fits you.",
         "opportunity": "You can focus on what really matters and remove what no longer aligns.",
-        "mindful": "Be mindful of holding onto roles or identities that are no longer right for you."
+        "mindful": "Be mindful of holding onto roles or identities that are no longer right for you.",
     },
     "50s+": {
         "summary": "This phase is about consolidation, wisdom and choosing what truly matters.",
         "opportunity": "You can move with clarity and focus on meaningful areas of life.",
-        "mindful": "Be mindful of becoming too rigid or resistant to change."
-    }
+        "mindful": "Be mindful of becoming too rigid or resistant to change.",
+    },
 }
 
 
-def _get_age(dt):
+def _get_age(birth_dt: datetime) -> int:
     now = datetime.now()
-    return now.year - dt.year
+    age = now.year - birth_dt.year
+    before_birthday = (now.month, now.day) < (birth_dt.month, birth_dt.day)
+    if before_birthday:
+        age -= 1
+    return age
 
 
-def _get_decade_bucket(age):
+def _get_decade_bucket(age: int) -> str:
     if age < 30:
         return "20s"
     elif age < 40:
@@ -111,15 +109,33 @@ def _relation_of_year_to_day_master(dm_element: str, year_element: str) -> str:
     if dm_element == year_element:
         return "same"
 
-    produces_map = {"Wood": "Water", "Fire": "Wood", "Earth": "Fire", "Metal": "Earth", "Water": "Metal"}
+    produces_map = {
+        "Wood": "Water",
+        "Fire": "Wood",
+        "Earth": "Fire",
+        "Metal": "Earth",
+        "Water": "Metal",
+    }
     if produces_map[dm_element] == year_element:
         return "produces"
 
-    controls_map = {"Wood": "Earth", "Fire": "Metal", "Earth": "Water", "Metal": "Wood", "Water": "Fire"}
+    controls_map = {
+        "Wood": "Earth",
+        "Fire": "Metal",
+        "Earth": "Water",
+        "Metal": "Wood",
+        "Water": "Fire",
+    }
     if controls_map[dm_element] == year_element:
         return "drains"
 
-    controlled_by_map = {"Wood": "Metal", "Fire": "Water", "Earth": "Wood", "Metal": "Fire", "Water": "Earth"}
+    controlled_by_map = {
+        "Wood": "Metal",
+        "Fire": "Water",
+        "Earth": "Wood",
+        "Metal": "Fire",
+        "Water": "Earth",
+    }
     if controlled_by_map[dm_element] == year_element:
         return "controls"
 
@@ -131,12 +147,11 @@ def _current_year_info():
     yp = compute_year_pillar_basic(now)
     return {
         "element": STEM_ELEMENT.get(yp.stem, "Unknown"),
-        "year": now.year
+        "year": now.year,
     }
 
 
-def generate_current_phase_reading(chart):
-
+def generate_current_phase_reading(chart, birth_dt: datetime):
     day_master = chart.day_master
     day_branch = chart.day.branch
 
@@ -147,7 +162,6 @@ def generate_current_phase_reading(chart):
     phase = CURRENT_PHASE_TEXT.get(element)
     underlying_text = UNDERLYING_RHYTHM_TEXT.get(underlying)
 
-    # YEAR
     year_info = _current_year_info()
     relation = _relation_of_year_to_day_master(element, year_info["element"])
 
@@ -155,19 +169,16 @@ def generate_current_phase_reading(chart):
     year_opportunity = YEAR_OPPORTUNITY.get(relation)
     year_mindful = YEAR_MINDFUL.get(relation)
 
-    # DECADE
-    age = _get_age(chart_datetime := datetime.now())  # simplified
+    age = _get_age(birth_dt)
     decade_key = _get_decade_bucket(age)
     decade = DECADE_PHASE.get(decade_key)
 
     return {
         "tool_role": "This tool helps you understand what’s happening in your life right now, what opportunities are opening up, and what to be mindful of.",
-
         "current_phase": {
             "title": "What’s Happening In Your Life Right Now",
-            "summary": f"{personality} {phase} {underlying_text}"
+            "summary": f"{personality} {phase} {underlying_text}",
         },
-
         "this_year": {
             "title": "What This Year Is Bringing",
             "year": year_info["year"],
@@ -175,16 +186,14 @@ def generate_current_phase_reading(chart):
             "opportunity": year_opportunity,
             "mindful_of": year_mindful,
         },
-
         "current_decade": {
             "title": "Your Current Life Stage",
             "summary": decade["summary"],
             "opportunity": decade["opportunity"],
-            "mindful_of": decade["mindful"]
+            "mindful_of": decade["mindful"],
         },
-
         "cta": {
             "title": "Go Deeper",
-            "summary": "This is a surface-level reading. A full chart reading can reveal deeper timing and patterns behind your life."
-        }
+            "summary": "This is a surface-level reading. A full chart reading can reveal deeper timing and patterns behind your life.",
+        },
     }
