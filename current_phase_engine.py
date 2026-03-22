@@ -188,142 +188,88 @@ def _get_month_stem_branch(chart):
 
 def _get_da_yun_period_index(birth_dt: datetime) -> int:
     age = _get_age(birth_dt)
-
-    if age < 10:
-        return 0
-
-    return age // 10
+    return 0 if age < 10 else age // 10
 
 
 def _shift_stem(stem: str, steps: int) -> str:
     if stem not in STEMS:
         return stem
-    idx = STEMS.index(stem)
-    return STEMS[(idx + steps) % 10]
+    return STEMS[(STEMS.index(stem) + steps) % 10]
 
 
 def _shift_branch(branch: str, steps: int) -> str:
     if branch not in BRANCHES:
         return branch
-    idx = BRANCHES.index(branch)
-    return BRANCHES[(idx + steps) % 12]
+    return BRANCHES[(BRANCHES.index(branch) + steps) % 12]
 
 
 def _get_light_da_yun_pillar(chart, birth_dt: datetime):
     month_stem, month_branch = _get_month_stem_branch(chart)
-    period_index = _get_da_yun_period_index(birth_dt)
+    idx = _get_da_yun_period_index(birth_dt)
 
     if not month_stem or not month_branch:
-        return {
-            "index": period_index,
-            "stem": None,
-            "branch": None,
-            "pillar": None,
-        }
-
-    da_yun_stem = _shift_stem(month_stem, period_index)
-    da_yun_branch = _shift_branch(month_branch, period_index)
+        return {"stem": None}
 
     return {
-        "index": period_index,
-        "stem": da_yun_stem,
-        "branch": da_yun_branch,
-        "pillar": f"{da_yun_stem}{da_yun_branch}",
+        "stem": _shift_stem(month_stem, idx),
+        "branch": _shift_branch(month_branch, idx),
     }
 
 
-def _get_element_relation(day_master_element: str, other_element: str) -> str:
-    if day_master_element == other_element:
+def _get_element_relation(dm, other):
+    if dm == other:
         return "same"
-
-    if ELEMENT_GENERATES.get(other_element) == day_master_element:
+    if ELEMENT_GENERATES.get(other) == dm:
         return "resource"
-
-    if ELEMENT_GENERATES.get(day_master_element) == other_element:
+    if ELEMENT_GENERATES.get(dm) == other:
         return "output"
-
-    if ELEMENT_CONTROLS.get(day_master_element) == other_element:
+    if ELEMENT_CONTROLS.get(dm) == other:
         return "control"
-
-    if ELEMENT_CONTROLS.get(other_element) == day_master_element:
+    if ELEMENT_CONTROLS.get(other) == dm:
         return "pressure"
-
     return "unknown"
 
 
-def _get_current_decade_text(chart, birth_dt: datetime, day_master_element: str):
-    da_yun = _get_light_da_yun_pillar(chart, birth_dt)
-
-    if not da_yun["stem"]:
+def _get_current_decade_text(chart, birth_dt, dm_element):
+    da = _get_light_da_yun_pillar(chart, birth_dt)
+    if not da.get("stem"):
         return DECADE_RELATION_TEXT["unknown"]
 
-    da_yun_element = STEM_ELEMENT.get(da_yun["stem"], "Unknown")
-    relation = _get_element_relation(day_master_element, da_yun_element)
-
-    return DECADE_RELATION_TEXT.get(relation, DECADE_RELATION_TEXT["unknown"])
+    rel = _get_element_relation(dm_element, STEM_ELEMENT.get(da["stem"], "Unknown"))
+    return DECADE_RELATION_TEXT.get(rel, DECADE_RELATION_TEXT["unknown"])
 
 
-def _build_current_phase_summary(personality: str, phase: str, underlying_text: str) -> str:
-    personality_clean = personality.rstrip(".")
-    phase_clean = phase.rstrip(".")
-    underlying_clean = underlying_text.rstrip(".")
-
-    return (
-        f"{personality_clean}. {phase_clean} "
-        f"{underlying_clean}."
-    )
+def _build_current_phase_summary(p, ph, u):
+    return f"{p.rstrip('.')}. {ph.rstrip('.')}. {u.rstrip('.')}."
 
 
 def generate_current_phase_reading(chart, birth_dt: datetime):
-    day_master = chart.day_master
-    day_branch = chart.day.branch
+    dm = chart.day_master
+    db = chart.day.branch
 
-    element = STEM_ELEMENT.get(day_master, "Unknown")
-    underlying = BRANCH_ELEMENT.get(day_branch, "Unknown")
+    element = STEM_ELEMENT.get(dm, "Unknown")
+    underlying = BRANCH_ELEMENT.get(db, "Unknown")
 
-    personality = DAY_MASTER_PERSONALITY.get(
-        day_master,
-        "You have your own natural way of responding to life.",
-    )
-    phase = CURRENT_PHASE_TEXT.get(
-        element,
-        "Right now, change and adjustment are becoming more noticeable.",
-    )
-    underlying_text = UNDERLYING_RHYTHM_TEXT.get(
-        underlying,
-        "Deep down, you may need more space, clarity and emotional steadiness.",
-    )
+    personality = DAY_MASTER_PERSONALITY.get(dm)
+    phase = CURRENT_PHASE_TEXT.get(element)
+    underlying_text = UNDERLYING_RHYTHM_TEXT.get(underlying)
 
-    year_info = _current_year_info()
-    relation = _relation_of_year_to_day_master(element, year_info["element"])
-
-    year_summary = YEAR_FEELING.get(
-        relation,
-        "This year brings a mix of movement, adjustment and learning.",
-    )
-    year_opportunity = YEAR_OPPORTUNITY.get(
-        relation,
-        "There are still useful openings if you move with awareness.",
-    )
-    year_mindful = YEAR_MINDFUL.get(
-        relation,
-        "Be mindful of imbalance and how you use your energy.",
-    )
+    year = _current_year_info()
+    rel = _relation_of_year_to_day_master(element, year["element"])
 
     decade = _get_current_decade_text(chart, birth_dt, element)
-    current_phase_summary = _build_current_phase_summary(personality, phase, underlying_text)
 
     return {
         "current_phase": {
             "title": "What’s Happening In Your Life Right Now",
-            "summary": current_phase_summary,
+            "summary": _build_current_phase_summary(personality, phase, underlying_text),
         },
         "this_year": {
             "title": "What This Year Is Bringing",
-            "year": year_info["year"],
-            "summary": year_summary,
-            "opportunity": year_opportunity,
-            "mindful_of": year_mindful,
+            "year": year["year"],
+            "summary": YEAR_FEELING[rel],
+            "opportunity": YEAR_OPPORTUNITY[rel],
+            "mindful_of": YEAR_MINDFUL[rel],
         },
         "current_decade": {
             "title": "Your Current Life Stage",
