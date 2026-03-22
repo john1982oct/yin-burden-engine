@@ -119,7 +119,7 @@ def bazi_debug():
 
 
 # -------------------------------------------------------------
-# NEW: Elemental Blueprint (Primary Constitution + Underlying Layer)
+# Elemental Blueprint
 # -------------------------------------------------------------
 @app.route("/elemental-blueprint", methods=["POST"])
 def elemental_blueprint():
@@ -178,19 +178,10 @@ def yin_burden_bazi():
 
 
 # -------------------------------------------------------------
-# NEW: BaZi DECADE Journey endpoint for the AIDO game
+# Demo decade endpoint
 # -------------------------------------------------------------
 @app.route("/bazi_decades", methods=["GET"])
 def bazi_decades():
-    """
-    Query params:
-      birth_date=yyyy-mm-dd or dd/mm/yyyy
-      birth_time=HH:MM (optional)
-      gender=male/female (unused for now)
-
-    Returns:
-      A fixed JSON structure required by the front-end game.
-    """
     birth_date = request.args.get("birth_date")
     birth_time = request.args.get("birth_time")
     gender = request.args.get("gender", "male")
@@ -202,14 +193,13 @@ def bazi_decades():
     if dt is None:
         return jsonify({"error": "Invalid birth_date/birth_time"}), 400
 
-    # deterministic seed based on birth datetime
     seed = dt.year + dt.month + dt.day + dt.hour
     rng = random.Random(seed)
 
     base_year = dt.year
     decades = []
 
-    for i in range(4):  # 4 decades for v1
+    for i in range(4):
         start_year = base_year + i * 10
         end_year = start_year + 9
 
@@ -242,7 +232,7 @@ def bazi_decades():
 
 
 # -------------------------------------------------------------
-# NEW: Current Life Phase Reading (Lead Magnet Tool)
+# Current Life Phase Reading
 # -------------------------------------------------------------
 @app.route("/current-phase", methods=["POST"])
 def current_phase():
@@ -259,7 +249,7 @@ def current_phase():
         return jsonify({"error": "Invalid birth_date/birth_time"}), 400
 
     chart = compute_placeholder_bazi(dt)
-    reading = generate_current_phase_reading(chart)
+    reading = generate_current_phase_reading(chart, dt)
 
     return jsonify({
         "input": {
