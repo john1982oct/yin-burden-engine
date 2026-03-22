@@ -4,7 +4,10 @@
 # "This tool helps you understand what’s happening in your life right now,
 # what opportunities are opening up, and what to be mindful of."
 
+from datetime import datetime
+
 from merit_engine import STEM_ELEMENT, BRANCH_ELEMENT
+from bazi_core import compute_year_pillar_basic
 
 
 DAY_MASTER_PERSONALITY = {
@@ -210,6 +213,120 @@ GUIDANCE_TEXT = {
 }
 
 
+ELEMENT_RELATION = {
+    "Wood": {
+        "same": "This year tends to amplify your natural style and pushes your growth themes more strongly.",
+        "produces": "This year can strengthen your confidence and help supportive conditions form around you.",
+        "controls": "This year may bring pressure, demands or situations that force you to sharpen yourself.",
+        "drains": "This year may pull more energy out of you through output, responsibilities or constant action.",
+        "controlled_by": "This year may bring practical concerns, expectations or reality checks that test your balance.",
+    },
+    "Fire": {
+        "same": "This year tends to intensify your natural energy, expression and emotional activity.",
+        "produces": "This year can strengthen your confidence and make it easier to feel supported or seen.",
+        "controls": "This year may bring pressure through responsibility, discipline or external expectations.",
+        "drains": "This year may ask you to give more, perform more or spread your energy widely.",
+        "controlled_by": "This year may bring practical or emotional realities that force you to slow down and stabilise.",
+    },
+    "Earth": {
+        "same": "This year tends to reinforce themes of responsibility, stability and carrying important foundations.",
+        "produces": "This year can strengthen your sense of support, confidence and internal steadiness.",
+        "controls": "This year may bring pressure through structure, deadlines or situations that require stronger discipline.",
+        "drains": "This year may pull your energy into caregiving, management or practical commitments.",
+        "controlled_by": "This year may challenge you through change, growth pressure or the need to stay flexible.",
+    },
+    "Metal": {
+        "same": "This year tends to intensify your natural standards, decision-making and need for clarity.",
+        "produces": "This year can strengthen your confidence, support and ability to hold your ground.",
+        "controls": "This year may bring pressure through responsibility, visibility or situations that require stronger performance.",
+        "drains": "This year may pull your energy into communication, output or constantly responding to demands.",
+        "controlled_by": "This year may challenge you through softer emotional or practical concerns that are harder to force into order.",
+    },
+    "Water": {
+        "same": "This year tends to amplify your natural sensitivity, reflection and intuitive processing.",
+        "produces": "This year can strengthen your resilience, support and deeper emotional understanding.",
+        "controls": "This year may bring pressure through busyness, expectations or situations that demand clearer action.",
+        "drains": "This year may pull your energy into planning, thinking, advising or emotional processing for others.",
+        "controlled_by": "This year may test you through structure, deadlines or firmer conditions that reduce your freedom to drift.",
+    },
+}
+
+
+YEAR_OPPORTUNITY_TEXT = {
+    "same": "There can be stronger momentum when you work with your natural strengths instead of fighting yourself.",
+    "produces": "Supportive people, resources or timing may feel easier to access this year.",
+    "controls": "Pressure can become productive if you turn it into focus, skill and better decision-making.",
+    "drains": "This year can open opportunities through visibility, contribution and sharing what you know.",
+    "controlled_by": "Practical situations may push you to become sharper, more grounded and more realistic in useful ways.",
+}
+
+
+YEAR_MINDFUL_TEXT = {
+    "same": "Be mindful of overdoing familiar habits, because too much of your own style can become imbalance.",
+    "produces": "Be mindful of becoming too comfortable and missing the need for timely action.",
+    "controls": "Be mindful of stress, tension or reacting too defensively under pressure.",
+    "drains": "Be mindful of burnout, over-giving or scattering your energy across too many directions.",
+    "controlled_by": "Be mindful of feeling boxed in by practical reality or becoming discouraged too quickly.",
+}
+
+
+def _relation_of_year_to_day_master(dm_element: str, year_element: str) -> str:
+    # same element
+    if dm_element == year_element:
+        return "same"
+
+    # produces DM
+    produces_map = {
+        "Wood": "Water",
+        "Fire": "Wood",
+        "Earth": "Fire",
+        "Metal": "Earth",
+        "Water": "Metal",
+    }
+    if produces_map[dm_element] == year_element:
+        return "produces"
+
+    # DM controls year
+    controls_map = {
+        "Wood": "Earth",
+        "Fire": "Metal",
+        "Earth": "Water",
+        "Metal": "Wood",
+        "Water": "Fire",
+    }
+    if controls_map[dm_element] == year_element:
+        return "drains"
+
+    # year controls DM
+    controlled_by_map = {
+        "Wood": "Metal",
+        "Fire": "Water",
+        "Earth": "Wood",
+        "Metal": "Fire",
+        "Water": "Earth",
+    }
+    if controlled_by_map[dm_element] == year_element:
+        return "controls"
+
+    return "controlled_by"
+
+
+def _current_year_info():
+    now = datetime.now()
+    year_pillar = compute_year_pillar_basic(now)
+    year_stem = year_pillar.stem
+    year_branch = year_pillar.branch
+    year_element = STEM_ELEMENT.get(year_stem, "Unknown")
+
+    return {
+        "pillar": f"{year_stem}{year_branch}",
+        "stem": year_stem,
+        "branch": year_branch,
+        "element": year_element,
+        "gregorian_year": now.year,
+    }
+
+
 def generate_current_phase_reading(chart):
     """
     Input:
@@ -263,6 +380,23 @@ def generate_current_phase_reading(chart):
         "What helps most now is moving with awareness, patience and consistency."
     )
 
+    current_year = _current_year_info()
+    year_element = current_year["element"]
+    relation = _relation_of_year_to_day_master(element, year_element)
+
+    year_base = ELEMENT_RELATION.get(element, {}).get(
+        relation,
+        "This year is bringing a mix of activity, learning and adjustment."
+    )
+    year_opportunity = YEAR_OPPORTUNITY_TEXT.get(
+        relation,
+        "This year may still open doors through awareness and steady action."
+    )
+    year_mindful = YEAR_MINDFUL_TEXT.get(
+        relation,
+        "Be mindful of imbalance and keep your energy well-managed."
+    )
+
     return {
         "tool_role": (
             "This tool helps you understand what’s happening in your life right now, "
@@ -275,6 +409,15 @@ def generate_current_phase_reading(chart):
         "current_phase": {
             "title": "What’s Happening In Your Life Right Now",
             "summary": f"{personality} {current_phase} {underlying_rhythm}"
+        },
+        "this_year": {
+            "title": "What This Year Is Bringing",
+            "gregorian_year": current_year["gregorian_year"],
+            "year_pillar": current_year["pillar"],
+            "year_element": year_element,
+            "summary": year_base,
+            "opportunity": year_opportunity,
+            "mindful_of": year_mindful,
         },
         "opportunities": {
             "title": "Opportunities Opening Up",
