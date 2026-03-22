@@ -7,6 +7,24 @@
 from merit_engine import STEM_ELEMENT
 
 
+DAY_MASTER_PERSONALITY = {
+    "甲": "You tend to be straightforward, growth-driven and value progress.",
+    "乙": "You tend to be adaptable, thoughtful and sensitive to your surroundings.",
+
+    "丙": "You tend to be expressive, energetic and naturally visible to others.",
+    "丁": "You tend to be perceptive, warm and quietly influential.",
+
+    "戊": "You tend to be stable, dependable and naturally supportive to others.",
+    "己": "You tend to be careful, detail-oriented and thoughtful in your actions.",
+
+    "庚": "You tend to be direct, decisive and value clarity and strength.",
+    "辛": "You tend to be refined, observant and sensitive to quality and detail.",
+
+    "壬": "You tend to be intuitive, flexible and able to see the bigger picture.",
+    "癸": "You tend to be reflective, sensitive and deeply aware of emotional undercurrents.",
+}
+
+
 CURRENT_PHASE_TEXT = {
     "Wood": (
         "You are in a phase where growth, change and forward movement feel especially important. "
@@ -176,6 +194,10 @@ def generate_current_phase_reading(chart):
 
     day_master = chart.day_master
     element = STEM_ELEMENT.get(day_master, "Unknown")
+    personality = DAY_MASTER_PERSONALITY.get(
+        day_master,
+        "You have your own unique way of approaching life and challenges."
+    )
 
     current_phase = CURRENT_PHASE_TEXT.get(
         element,
@@ -214,7 +236,7 @@ def generate_current_phase_reading(chart):
         "day_master_element": element,
         "current_phase": {
             "title": "What’s Happening In Your Life Right Now",
-            "summary": current_phase
+            "summary": f"{personality} {current_phase}"
         },
         "opportunities": {
             "title": "Opportunities Opening Up",
