@@ -61,27 +61,57 @@ YEAR_MINDFUL = {
 }
 
 
-DECADE_PHASE = {
-    "20s": {
-        "summary": "This phase of life is about exploration, trial and discovering your direction.",
-        "opportunity": "You have room to try, learn and pivot without being locked in yet.",
-        "mindful": "Be mindful of drifting too long without building something stable.",
+DECADE_RELATION_TEXT = {
+    "same": {
+        "summary": "You may notice parts of your life intensifying — the same patterns, emotions or situations keep showing up more strongly. It can feel like you’re being pushed to face yourself more honestly.",
+        "opportunity": "This is a powerful period to step into your true identity and stop shrinking yourself just to fit.",
+        "mindful": "Be mindful of reacting too strongly or repeating the same patterns without making a real change.",
     },
-    "30s": {
-        "summary": "This phase is about building, stabilising and making more solid life decisions.",
-        "opportunity": "This is a powerful time to establish career, relationships and long-term direction.",
-        "mindful": "Be mindful of pressure, comparison or feeling like you must rush everything.",
+    "resource": {
+        "summary": "Things may not look dramatic on the outside, but something is quietly rebuilding within you. You may feel the need to slow down, reflect, or reset certain parts of your life.",
+        "opportunity": "This is a good period to strengthen your foundation — emotionally, mentally, or in your direction.",
+        "mindful": "Be mindful of staying in preparation mode for too long without eventually moving forward.",
     },
-    "40s": {
-        "summary": "This phase is about refinement, alignment and adjusting what truly fits you.",
-        "opportunity": "You can focus on what really matters and remove what no longer aligns.",
-        "mindful": "Be mindful of holding onto roles or identities that are no longer right for you.",
+    "output": {
+        "summary": "You may feel a growing urge to express yourself more — through your work, choices, or the way you show up in life. Holding things in may start to feel harder than before.",
+        "opportunity": "This is a strong period for visibility, creation, and showing more of your real self.",
+        "mindful": "Be mindful of overextending yourself or giving too much without enough recovery.",
     },
-    "50s+": {
-        "summary": "This phase is about consolidation, wisdom and choosing what truly matters.",
-        "opportunity": "You can move with clarity and focus on meaningful areas of life.",
-        "mindful": "Be mindful of becoming too rigid or resistant to change.",
+    "control": {
+        "summary": "You may notice yourself becoming more focused on control, stability, or getting things in order. There can be stronger pressure to handle responsibilities, finances, or long-term decisions properly.",
+        "opportunity": "This is a powerful period to build something solid — whether in career, structure, or life direction.",
+        "mindful": "Be mindful of becoming too hard on yourself or trying to control everything around you.",
     },
+    "pressure": {
+        "summary": "Life may feel like it’s pushing you harder than before. Expectations, responsibilities, or unexpected challenges can make things feel heavier or more intense.",
+        "opportunity": "This period can build real strength, resilience, and clarity about what truly matters.",
+        "mindful": "Be mindful of stress, burnout, or feeling like you must carry everything alone.",
+    },
+    "unknown": {
+        "summary": "You may feel like things are shifting, even if you cannot fully explain it yet. Certain areas of life may be changing direction quietly.",
+        "opportunity": "This is a time to stay open and allow new direction to unfold naturally.",
+        "mindful": "Be mindful of resisting change just because it feels unfamiliar.",
+    },
+}
+
+
+STEMS = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
+BRANCHES = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
+
+ELEMENT_GENERATES = {
+    "Wood": "Fire",
+    "Fire": "Earth",
+    "Earth": "Metal",
+    "Metal": "Water",
+    "Water": "Wood",
+}
+
+ELEMENT_CONTROLS = {
+    "Wood": "Earth",
+    "Fire": "Metal",
+    "Earth": "Water",
+    "Metal": "Wood",
+    "Water": "Fire",
 }
 
 
@@ -92,17 +122,6 @@ def _get_age(birth_dt: datetime) -> int:
     if before_birthday:
         age -= 1
     return age
-
-
-def _get_decade_bucket(age: int) -> str:
-    if age < 30:
-        return "20s"
-    elif age < 40:
-        return "30s"
-    elif age < 50:
-        return "40s"
-    else:
-        return "50s+"
 
 
 def _relation_of_year_to_day_master(dm_element: str, year_element: str) -> str:
@@ -116,7 +135,7 @@ def _relation_of_year_to_day_master(dm_element: str, year_element: str) -> str:
         "Metal": "Earth",
         "Water": "Metal",
     }
-    if produces_map[dm_element] == year_element:
+    if produces_map.get(dm_element) == year_element:
         return "produces"
 
     controls_map = {
@@ -126,7 +145,7 @@ def _relation_of_year_to_day_master(dm_element: str, year_element: str) -> str:
         "Metal": "Wood",
         "Water": "Fire",
     }
-    if controls_map[dm_element] == year_element:
+    if controls_map.get(dm_element) == year_element:
         return "drains"
 
     controlled_by_map = {
@@ -136,7 +155,7 @@ def _relation_of_year_to_day_master(dm_element: str, year_element: str) -> str:
         "Metal": "Fire",
         "Water": "Earth",
     }
-    if controlled_by_map[dm_element] == year_element:
+    if controlled_by_map.get(dm_element) == year_element:
         return "controls"
 
     return "controlled_by"
@@ -148,6 +167,138 @@ def _current_year_info():
     return {
         "element": STEM_ELEMENT.get(yp.stem, "Unknown"),
         "year": now.year,
+    }
+
+
+def _get_month_stem_branch(chart):
+    """
+    Safely supports a few possible chart shapes.
+    """
+    if hasattr(chart, "month") and hasattr(chart.month, "stem") and hasattr(chart.month, "branch"):
+        return chart.month.stem, chart.month.branch
+
+    if hasattr(chart, "month_pillar"):
+        month_pillar = chart.month_pillar
+
+        if isinstance(month_pillar, dict):
+            return month_pillar.get("stem"), month_pillar.get("branch")
+
+        if hasattr(month_pillar, "stem") and hasattr(month_pillar, "branch"):
+            return month_pillar.stem, month_pillar.branch
+
+    return None, None
+
+
+def _get_da_yun_period_index(birth_dt: datetime) -> int:
+    """
+    Light Da Yun layer only:
+    - still approximate
+    - first 10-year cycle starts around age 10
+    - enough for a lead magnet without full traditional complexity
+    """
+    age = _get_age(birth_dt)
+
+    if age < 10:
+        return 0
+
+    return age // 10
+
+
+def _shift_stem(stem: str, steps: int) -> str:
+    if stem not in STEMS:
+        return stem
+    idx = STEMS.index(stem)
+    return STEMS[(idx + steps) % 10]
+
+
+def _shift_branch(branch: str, steps: int) -> str:
+    if branch not in BRANCHES:
+        return branch
+    idx = BRANCHES.index(branch)
+    return BRANCHES[(idx + steps) % 12]
+
+
+def _get_light_da_yun_pillar(chart, birth_dt: datetime):
+    """
+    Light Da Yun approximation:
+    - uses month pillar as base
+    - moves forward one pillar per 10-year period
+    - does NOT yet handle forward/reverse direction
+    - does NOT yet calculate exact traditional Da Yun start age
+    """
+    month_stem, month_branch = _get_month_stem_branch(chart)
+    period_index = _get_da_yun_period_index(birth_dt)
+
+    if not month_stem or not month_branch:
+        return {
+            "index": period_index,
+            "stem": None,
+            "branch": None,
+            "pillar": None,
+        }
+
+    da_yun_stem = _shift_stem(month_stem, period_index)
+    da_yun_branch = _shift_branch(month_branch, period_index)
+
+    return {
+        "index": period_index,
+        "stem": da_yun_stem,
+        "branch": da_yun_branch,
+        "pillar": f"{da_yun_stem}{da_yun_branch}",
+    }
+
+
+def _get_element_relation(day_master_element: str, other_element: str) -> str:
+    """
+    Human-usable relation naming for decade interpretation.
+    """
+    if day_master_element == other_element:
+        return "same"
+
+    if ELEMENT_GENERATES.get(other_element) == day_master_element:
+        return "resource"
+
+    if ELEMENT_GENERATES.get(day_master_element) == other_element:
+        return "output"
+
+    if ELEMENT_CONTROLS.get(day_master_element) == other_element:
+        return "control"
+
+    if ELEMENT_CONTROLS.get(other_element) == day_master_element:
+        return "pressure"
+
+    return "unknown"
+
+
+def _get_current_decade_data(chart, birth_dt: datetime, day_master_element: str):
+    da_yun = _get_light_da_yun_pillar(chart, birth_dt)
+
+    if not da_yun["stem"]:
+        return {
+            "text": DECADE_RELATION_TEXT["unknown"],
+            "debug": {
+                "period_index": da_yun["index"],
+                "da_yun_stem": da_yun["stem"],
+                "da_yun_branch": da_yun["branch"],
+                "da_yun_pillar": da_yun["pillar"],
+                "da_yun_element": None,
+                "relation": "unknown",
+            },
+        }
+
+    da_yun_element = STEM_ELEMENT.get(da_yun["stem"], "Unknown")
+    relation = _get_element_relation(day_master_element, da_yun_element)
+
+    return {
+        "text": DECADE_RELATION_TEXT.get(relation, DECADE_RELATION_TEXT["unknown"]),
+        "debug": {
+            "period_index": da_yun["index"],
+            "da_yun_stem": da_yun["stem"],
+            "da_yun_branch": da_yun["branch"],
+            "da_yun_pillar": da_yun["pillar"],
+            "da_yun_element": da_yun_element,
+            "relation": relation,
+        },
     }
 
 
@@ -187,16 +338,8 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
         "Be mindful of imbalance and how you use your energy.",
     )
 
-    age = _get_age(birth_dt)
-    decade_key = _get_decade_bucket(age)
-    decade = DECADE_PHASE.get(
-        decade_key,
-        {
-            "summary": "This phase of life is about adjusting what matters most to you.",
-            "opportunity": "You have room to become clearer and more intentional.",
-            "mindful": "Be mindful of drifting away from what truly matters.",
-        },
-    )
+    decade_data = _get_current_decade_data(chart, birth_dt, element)
+    decade = decade_data["text"]
 
     return {
         "tool_role": "This tool helps you understand what’s happening in your life right now, what opportunities are opening up, and what to be mindful of.",
@@ -216,6 +359,7 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
             "summary": decade["summary"],
             "opportunity": decade["opportunity"],
             "mindful_of": decade["mindful"],
+            "debug": decade_data["debug"],
         },
         "cta": {
             "title": "Go Deeper",
