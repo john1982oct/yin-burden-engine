@@ -208,7 +208,7 @@ def _get_light_da_yun_pillar(chart, birth_dt: datetime):
     idx = _get_da_yun_period_index(birth_dt)
 
     if not month_stem or not month_branch:
-        return {"stem": None}
+        return {"stem": None, "branch": None}
 
     return {
         "stem": _shift_stem(month_stem, idx),
@@ -240,7 +240,10 @@ def _get_current_decade_text(chart, birth_dt, dm_element):
 
 
 def _build_current_phase_summary(p, ph, u):
-    return f"{p.rstrip('.')}. {ph.rstrip('.')}. {u.rstrip('.')}."
+    p = (p or "You have your own way of moving through life.").rstrip(".")
+    ph = (ph or "Right now, a meaningful life phase is unfolding.").rstrip(".")
+    u = (u or "Deep down, your inner rhythm is asking for more awareness.").rstrip(".")
+    return f"{p}. {ph}. {u}."
 
 
 def generate_current_phase_reading(chart, birth_dt: datetime):
@@ -260,6 +263,11 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
     decade = _get_current_decade_text(chart, birth_dt, element)
 
     return {
+        "day_master": dm,
+        "day_master_element": element,
+        "day_branch": db,
+        "day_branch_element": underlying,
+
         "current_phase": {
             "title": "What’s Happening In Your Life Right Now",
             "summary": _build_current_phase_summary(personality, phase, underlying_text),
@@ -267,9 +275,9 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
         "this_year": {
             "title": "What This Year Is Bringing",
             "year": year["year"],
-            "summary": YEAR_FEELING[rel],
-            "opportunity": YEAR_OPPORTUNITY[rel],
-            "mindful_of": YEAR_MINDFUL[rel],
+            "summary": YEAR_FEELING.get(rel, "This year is bringing a meaningful shift in pace and priorities."),
+            "opportunity": YEAR_OPPORTUNITY.get(rel, "There is still useful momentum here if you respond with awareness."),
+            "mindful_of": YEAR_MINDFUL.get(rel, "Be mindful of imbalance and how you use your energy."),
         },
         "current_decade": {
             "title": "Your Current Life Stage",
