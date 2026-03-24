@@ -5,34 +5,114 @@ from bazi_core import compute_year_pillar_basic
 
 
 DAY_MASTER_PERSONALITY = {
-    "甲": "You tend to be straightforward, growth-driven and value progress.",
-    "乙": "You tend to be adaptable, thoughtful and sensitive to your surroundings.",
-    "丙": "You tend to be expressive, energetic and naturally visible to others.",
-    "丁": "You tend to be perceptive, warm and quietly influential.",
-    "戊": "You tend to be stable, dependable and naturally supportive to others.",
-    "己": "You tend to be careful, detail-oriented and thoughtful in your actions.",
-    "庚": "You tend to be direct, decisive and value clarity and strength.",
-    "辛": "You tend to be refined, observant and sensitive to quality and detail.",
-    "壬": "You tend to be intuitive, flexible and able to see the bigger picture.",
-    "癸": "You tend to be reflective, sensitive and deeply aware of emotional undercurrents.",
+    "甲": [
+        "You tend to be straightforward, growth-driven and value progress.",
+        "You naturally move toward growth, clarity and forward momentum.",
+        "You are driven by progress and tend to approach life with directness and purpose.",
+    ],
+    "乙": [
+        "You tend to be adaptable, thoughtful and sensitive to your surroundings.",
+        "You have a natural ability to adjust, read your environment and respond with care.",
+        "You tend to be flexible, perceptive and attuned to the feelings and energy around you.",
+    ],
+    "丙": [
+        "You tend to be expressive, energetic and naturally visible to others.",
+        "You have a warm, outward energy that draws others in and lights up a room.",
+        "You tend to be lively, open and someone others naturally notice and remember.",
+    ],
+    "丁": [
+        "You tend to be perceptive, warm and quietly influential.",
+        "You have a steady inner warmth that others feel even when you say very little.",
+        "You tend to be thoughtful, observant and someone whose quiet presence carries real weight.",
+    ],
+    "戊": [
+        "You tend to be stable, dependable and naturally supportive to others.",
+        "You are someone others lean on — steady, grounded and genuinely reliable.",
+        "You tend to bring calm and steadiness, making those around you feel supported and safe.",
+    ],
+    "己": [
+        "You tend to be careful, detail-oriented and thoughtful in your actions.",
+        "You pay close attention to what others miss and move through life with care and precision.",
+        "You tend to be conscientious, measured and deeply aware of the finer details in life.",
+    ],
+    "庚": [
+        "You tend to be direct, decisive and value clarity and strength.",
+        "You move with purpose, say what you mean and value people who do the same.",
+        "You tend to be clear-headed, action-oriented and someone who values honesty over comfort.",
+    ],
+    "辛": [
+        "You tend to be refined, observant and sensitive to quality and detail.",
+        "You notice what others overlook and hold yourself and your environment to a high standard.",
+        "You tend to be precise, discerning and drawn to beauty, quality and things done properly.",
+    ],
+    "壬": [
+        "You tend to be intuitive, flexible and able to see the bigger picture.",
+        "You have a natural ability to read between the lines and flow with what life brings.",
+        "You tend to be open-minded, perceptive and good at sensing where things are heading.",
+    ],
+    "癸": [
+        "You tend to be reflective, sensitive and deeply aware of emotional undercurrents.",
+        "You feel things deeply and have a quiet, intuitive sense of what others are really going through.",
+        "You tend to be inward, emotionally perceptive and attuned to the subtler layers of life.",
+    ],
 }
 
 
 CURRENT_PHASE_TEXT = {
-    "Wood": "Right now, growth, change and forward movement feel especially important.",
-    "Fire": "Right now, expression, visibility and emotional energy become more active.",
-    "Earth": "Right now, stability, responsibility and long-term foundations matter more.",
-    "Metal": "Right now, structure, decisions and clarity become more noticeable.",
-    "Water": "Right now, reflection, intuition and inner adjustment become more important.",
+    "Wood": [
+        "Right now, growth, change and forward movement feel especially important.",
+        "This is a time when new direction, expansion and moving forward carry more weight.",
+        "There is a pull toward growth right now — change and forward movement are calling for attention.",
+    ],
+    "Fire": [
+        "Right now, expression, visibility and emotional energy become more active.",
+        "This is a period when showing up, being seen and feeling things more vividly becomes the theme.",
+        "Your inner fire is more active right now — expression, connection and emotional presence feel heightened.",
+    ],
+    "Earth": [
+        "Right now, stability, responsibility and long-term foundations matter more.",
+        "This is a time when building something steady, handling responsibilities and thinking long-term feels pressing.",
+        "There is a pull toward groundedness right now — structure, reliability and lasting decisions take center stage.",
+    ],
+    "Metal": [
+        "Right now, structure, decisions and clarity become more noticeable.",
+        "This is a period when getting clear, making decisions and creating better order in your life feels necessary.",
+        "There is a sharpening quality to this time — clarity, structure and cutting through the noise become important.",
+    ],
+    "Water": [
+        "Right now, reflection, intuition and inner adjustment become more important.",
+        "This is a quieter, more inward time — your instincts and inner knowing are asking to be heard.",
+        "There is a call to slow down and listen inward right now — reflection and quiet recalibration are the theme.",
+    ],
 }
 
 
 UNDERLYING_RHYTHM_TEXT = {
-    "Wood": "Deep down, you need movement and progress.",
-    "Fire": "Deep down, you need warmth, encouragement and room to express what you really feel.",
-    "Earth": "Deep down, you need stability and something you can rely on emotionally.",
-    "Metal": "Deep down, you need clarity, quiet and space to sort things out properly.",
-    "Water": "Deep down, you need quiet time to process, retreat and recharge.",
+    "Wood": [
+        "Deep down, you need movement and progress.",
+        "Underneath it all, you need to feel like things are moving and that your efforts are going somewhere.",
+        "At your core, you crave forward motion — stagnation tends to drain you more than others.",
+    ],
+    "Fire": [
+        "Deep down, you need warmth, encouragement and room to express what you really feel.",
+        "Underneath it all, you need connection, warmth and the freedom to express yourself openly.",
+        "At your core, you need to feel seen and encouraged — being heard matters deeply to you.",
+    ],
+    "Earth": [
+        "Deep down, you need stability and something you can rely on emotionally.",
+        "Underneath it all, you need groundedness — a sense of safety and something consistent to hold onto.",
+        "At your core, you need reliability and emotional steadiness — uncertainty tends to wear on you quietly.",
+    ],
+    "Metal": [
+        "Deep down, you need clarity, quiet and space to sort things out properly.",
+        "Underneath it all, you need order, stillness and the room to think things through without noise.",
+        "At your core, you need mental clarity — too much chaos or ambiguity tends to leave you feeling unsettled.",
+    ],
+    "Water": [
+        "Deep down, you need quiet time to process, retreat and recharge.",
+        "Underneath it all, you need space to absorb, reflect and come back to yourself.",
+        "At your core, you need rest and inner space — pushing through without pausing tends to cost you more than you realize.",
+    ],
 }
 
 
@@ -113,6 +193,11 @@ ELEMENT_CONTROLS = {
     "Metal": "Wood",
     "Water": "Fire",
 }
+
+
+def _pick_variant(options: list, seed_text: str) -> str:
+    index = sum(ord(c) for c in seed_text) % len(options)
+    return options[index]
 
 
 def _get_age(birth_dt: datetime) -> int:
@@ -253,9 +338,10 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
     element = STEM_ELEMENT.get(dm, "Unknown")
     underlying = BRANCH_ELEMENT.get(db, "Unknown")
 
-    personality = DAY_MASTER_PERSONALITY.get(dm)
-    phase = CURRENT_PHASE_TEXT.get(element)
-    underlying_text = UNDERLYING_RHYTHM_TEXT.get(underlying)
+    seed = dm + db + element
+    personality = _pick_variant(DAY_MASTER_PERSONALITY[dm], seed) if dm in DAY_MASTER_PERSONALITY else None
+    phase = _pick_variant(CURRENT_PHASE_TEXT[element], seed) if element in CURRENT_PHASE_TEXT else None
+    underlying_text = _pick_variant(UNDERLYING_RHYTHM_TEXT[underlying], seed) if underlying in UNDERLYING_RHYTHM_TEXT else None
 
     year = _current_year_info()
     rel = _relation_of_year_to_day_master(element, year["element"])
