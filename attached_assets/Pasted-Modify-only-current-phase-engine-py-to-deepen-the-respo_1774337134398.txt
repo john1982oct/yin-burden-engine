@@ -1,0 +1,86 @@
+Modify only `current_phase_engine.py` to deepen the response structure returned by `generate_current_phase_reading`, while preserving all existing metaphysics logic and all existing fields.
+
+Strict constraints:
+- Do NOT change the chart calculation logic.
+- Do NOT change the meaning of any existing reading.
+- Do NOT remove any existing fields.
+- Do NOT rename any existing fields.
+- Do NOT refactor unrelated code.
+- Do NOT run more than one endpoint test.
+
+Goal:
+Add a new `"details"` field inside each of these sections:
+- current_phase
+- this_year
+- current_decade
+
+The existing `"summary"` fields must remain exactly as they are.
+
+Implementation requirements:
+
+1. In `current_phase_engine.py`, create new helper text dictionaries for details:
+   - CURRENT_PHASE_DETAILS
+   - YEAR_DETAILS
+   - DECADE_DETAILS
+
+2. These detail texts should be:
+   - warm
+   - simple
+   - slightly deeper than the summary
+   - non-dramatic
+   - aligned with the current meaning of each section
+
+3. For `current_phase.details`:
+   Build it using the existing signals already computed in the function:
+   - day master personality
+   - current phase element meaning
+   - underlying rhythm
+   It should read like a deeper explanation of why the person may currently feel this way.
+
+4. For `this_year.details`:
+   Use `year_relation` to produce a slightly deeper explanation of the yearly influence.
+   The existing `summary`, `opportunity`, and `mindful_of` must remain unchanged.
+
+5. For `current_decade.details`:
+   Use the same relation key already used for the decade summary (`same`, `resource`, `output`, `control`, `pressure`, `unknown`) and add a deeper explanation of what this longer phase tends to develop over time.
+
+6. Add only one new field per section:
+   - `"details": ...`
+
+7. Keep `signals` exactly as it is.
+
+8. After making the change, run only one `/current-phase` test with:
+{
+  "birth_date": "1982-10-02",
+  "birth_time": "08:30"
+}
+
+9. Show me the full updated JSON response.
+
+Desired example shape:
+
+{
+  "current_phase": {
+    "title": "...",
+    "summary": "...",
+    "details": "..."
+  },
+  "this_year": {
+    "title": "...",
+    "year": 2026,
+    "summary": "...",
+    "details": "...",
+    "opportunity": "...",
+    "mindful_of": "..."
+  },
+  "current_decade": {
+    "title": "...",
+    "summary": "...",
+    "details": "...",
+    "opportunity": "...",
+    "mindful_of": "..."
+  }
+}
+
+Important:
+This is a non-breaking enhancement. Keep the output elegant and compatible with the current frontend.

@@ -116,6 +116,31 @@ UNDERLYING_RHYTHM_TEXT = {
 }
 
 
+CURRENT_PHASE_DETAILS = {
+    "Wood": "Because you naturally reach toward what's next, periods that activate Wood energy can feel particularly alive. Growth is not just happening around you — it's being asked of you. The pull you feel right now is real, and responding to it with intention tends to serve you well.",
+    "Fire": "Because you carry a natural warmth and expressiveness, periods that activate Fire energy tend to amplify how visible and emotionally present you feel. What you're sensing is not just restlessness — it's a genuine invitation to show up more fully and let more of yourself be seen.",
+    "Earth": "Because stability and reliability run deep in your nature, periods that activate Earth energy bring your focus to what is lasting and worth protecting. The weight you feel around responsibilities right now is your nature responding to real demands — and you are more capable of meeting them than you might think.",
+    "Metal": "Because you tend to value clarity and doing things properly, periods that activate Metal energy sharpen your attention and raise your standards. What feels like pressure to get things right is partly your own nature asking for more order — and clearing the noise tends to help more than pushing harder.",
+    "Water": "Because you process life deeply and intuitively, periods that activate Water energy draw you inward. What may feel like low energy or withdrawal is often your system doing important inner work. Giving yourself permission to slow down right now is not weakness — it's how you restore and clarify.",
+}
+
+YEAR_DETAILS = {
+    "same": "When the year carries the same element as your day master, it tends to amplify whatever is already present in your life. Your natural strengths become more available, but so do your habitual blind spots. It's a year that rewards honest self-awareness more than usual.",
+    "produces": "When the year's element nourishes your day master, there is a quieter support working in your favour. Things may feel less forced, and opportunities can arrive through ordinary moments rather than dramatic ones. The key is staying engaged and not waiting for things to be perfect before you move.",
+    "controls": "When the year's element challenges your day master, life tends to ask more of you than usual. This is not necessarily a bad thing — pressure applied well tends to create clarity and motion. The challenge is to respond to what's being asked without wearing yourself out in the process.",
+    "drains": "When your day master is expressing outward into the year's element, much of your energy goes into doing, contributing and showing up. This can feel fulfilling and busy at the same time. Pacing yourself and recognising when you've given enough are the most useful skills this year.",
+    "controlled_by": "When the year's element limits your day master, certain things may not move as quickly or freely as you'd like. Rather than fighting the current, this tends to be a year where refining, reflecting and letting go of what isn't working pays off more than pushing forward.",
+}
+
+DECADE_DETAILS = {
+    "same": "Decades that carry the same element as your day master tend to develop your sense of self over time. The intensity of this period is asking you to become more grounded in who you genuinely are — not who you've been performing or hiding behind. What emerges is usually a stronger, more honest version of yourself.",
+    "resource": "Decades with a resource quality tend to quietly restore and rebuild what has been spent. Over time, this phase develops your inner resilience, deepens your self-understanding, and helps you reconnect with what you truly need. Growth during this period tends to be internal before it becomes visible.",
+    "output": "Decades with an output quality tend to develop your creative and expressive capacity over time. What begins as a pull to do more or be seen more can grow into genuine contribution and skill. This phase tends to reward those who keep showing up and refining how they share themselves with the world.",
+    "control": "Decades with a control quality tend to develop discipline, discernment and real-world capability over time. The pressure to handle more and take responsibility tends to build into lasting competence. What may feel heavy at first often becomes a quiet source of confidence.",
+    "pressure": "Decades with a pressure quality tend to develop resilience and genuine clarity about what matters. Being pushed harder than usual over time has a way of stripping away what is unnecessary and revealing what is real. What survives this phase tends to be the most solid and true.",
+    "unknown": "When the decade's energy is harder to classify, the development it brings tends to be more subtle and gradual. Over time, you may find yourself growing in ways that are difficult to name but unmistakably real — more open, more flexible, more at ease with uncertainty than you once were.",
+}
+
 YEAR_FEELING = {
     "same": "This year feels more intense — whatever is already happening in your life may feel stronger and harder to ignore.",
     "produces": "This year feels smoother — things may flow more naturally when you stop forcing every step.",
@@ -373,17 +398,20 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
         "current_phase": {
             "title": "What’s Happening In Your Life Right Now",
             "summary": _build_current_phase_summary(personality, phase, underlying_text),
+            "details": CURRENT_PHASE_DETAILS.get(element, "The energies at work right now are asking you to pay closer attention to how you move through daily life."),
         },
         "this_year": {
             "title": "What This Year Is Bringing",
             "year": year["year"],
             "summary": YEAR_FEELING.get(rel, "This year is bringing a meaningful shift in pace and priorities."),
+            "details": YEAR_DETAILS.get(rel, "This year carries an influence worth paying attention to — how you respond to it matters more than the circumstances themselves."),
             "opportunity": YEAR_OPPORTUNITY.get(rel, "There is still useful momentum here if you respond with awareness."),
             "mindful_of": YEAR_MINDFUL.get(rel, "Be mindful of imbalance and how you use your energy."),
         },
         "current_decade": {
             "title": "Your Current Life Stage",
             "summary": decade["summary"],
+            "details": DECADE_DETAILS.get(decade_relation, "This longer phase is developing something real in you, even if it is not fully visible yet."),
             "opportunity": decade["opportunity"],
             "mindful_of": decade["mindful"],
         },
