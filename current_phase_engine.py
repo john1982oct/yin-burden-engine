@@ -262,6 +262,22 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
 
     decade = _get_current_decade_text(chart, birth_dt, element)
 
+    da = _get_light_da_yun_pillar(chart, birth_dt)
+    decade_relation = (
+        _get_element_relation(element, STEM_ELEMENT.get(da["stem"], "Unknown"))
+        if da.get("stem") else "unknown"
+    )
+
+    signals = {
+        "day_master": dm,
+        "day_master_element": element,
+        "day_branch": db,
+        "day_branch_element": underlying,
+        "year_element": year["element"],
+        "year_relation": rel,
+        "decade_relation": decade_relation,
+    }
+
     return {
         "day_master": dm,
         "day_master_element": element,
@@ -289,4 +305,5 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
             "title": "Go Deeper",
             "summary": "This is only the surface of your timing. A full reading can show why these patterns are happening, what is opening next, and how to move through it with more clarity.",
         },
+        "signals": signals,
     }
