@@ -141,6 +141,55 @@ DECADE_DETAILS = {
     "unknown": "When the decade's energy is harder to classify, the development it brings tends to be more subtle and gradual. Over time, you may find yourself growing in ways that are difficult to name but unmistakably real — more open, more flexible, more at ease with uncertainty than you once were.",
 }
 
+PRESENTATION_HEADLINE = {
+    "Wood": "A time of movement and genuine possibility",
+    "Fire": "Your presence carries more power than you realise",
+    "Earth": "Building something that lasts",
+    "Metal": "A season for clarity and quiet strength",
+    "Water": "Turning inward to find direction",
+}
+
+PRESENTATION_INTRO = {
+    "Wood": "This reading reflects the timing unfolding around you right now — where you are in the year, what the broader decade is asking of you, and what your chart says about your natural strengths. Take what resonates and let the rest settle quietly.",
+    "Fire": "This reading is a reflection of the current energies at work in your life — what's active this year, what your longer life phase is developing, and how your natural self tends to move through it all. Read it with an open and patient mind.",
+    "Earth": "What follows is a reading of your current timing — what the year is calling forward, what your life stage is building, and how your nature tends to show up through it all. There is no urgency here, only clarity offered gently.",
+    "Metal": "This reading offers a clear view of your current timing — what's sharpening, what's being developed in the longer arc, and how your day master energy tends to respond. Read it as an honest, grounded reflection.",
+    "Water": "This reading traces the quieter currents active in your life right now — the year's influence, the decade's theme, and the deeper rhythm underneath it all. Let the words settle before you decide what feels true.",
+}
+
+HIGHLIGHT_TAG_ELEMENT = {
+    "Wood": "Growth season",
+    "Fire": "Expression season",
+    "Earth": "Grounded season",
+    "Metal": "Clarity season",
+    "Water": "Reflective season",
+}
+
+HIGHLIGHT_TAG_YEAR = {
+    "same": "Intensifying year",
+    "produces": "Quiet support",
+    "controls": "Pressure into growth",
+    "drains": "Active output",
+    "controlled_by": "Refinement year",
+}
+
+HIGHLIGHT_TAG_DECADE = {
+    "same": "Identity phase",
+    "resource": "Inner rebuilding",
+    "output": "Creative expansion",
+    "control": "Long-term building",
+    "pressure": "Resilience phase",
+    "unknown": "Quiet shift",
+}
+
+CTA_MODE = {
+    "same": "supportive_reflection",
+    "produces": "gentle_deeper_reading",
+    "controls": "clarity_next_step",
+    "drains": "supportive_reflection",
+    "controlled_by": "clarity_next_step",
+}
+
 YEAR_FEELING = {
     "same": "This year feels more intense — whatever is already happening in your life may feel stronger and harder to ignore.",
     "produces": "This year feels smoother — things may flow more naturally when you stop forcing every step.",
@@ -356,6 +405,32 @@ def _build_current_phase_summary(p, ph, u):
     return f"{p}. {ph}. {u}."
 
 
+def _build_presentation(dm, db, element, underlying, year_relation, decade_relation):
+    tags = []
+    for tag in [
+        HIGHLIGHT_TAG_ELEMENT.get(element),
+        HIGHLIGHT_TAG_YEAR.get(year_relation),
+        HIGHLIGHT_TAG_DECADE.get(decade_relation),
+    ]:
+        if tag and tag not in tags:
+            tags.append(tag)
+
+    return {
+        "headline": PRESENTATION_HEADLINE.get(element, "A meaningful reading for this moment in your life"),
+        "intro": PRESENTATION_INTRO.get(element, "This reading reflects the timing and energies unfolding around you right now."),
+        "identity_pill": f"Day Master: {dm} \u00b7 {element} | Day Branch: {db} \u00b7 {underlying}",
+        "section_order": ["current_phase", "this_year", "current_decade", "cta"],
+        "section_labels": {
+            "current_phase": "Current Phase",
+            "this_year": "This Year",
+            "current_decade": "Current Decade",
+            "cta": "Next Step",
+        },
+        "highlight_tags": tags,
+        "cta_mode": CTA_MODE.get(year_relation, "gentle_deeper_reading"),
+    }
+
+
 def generate_current_phase_reading(chart, birth_dt: datetime):
     dm = chart.day_master
     db = chart.day.branch
@@ -420,4 +495,5 @@ def generate_current_phase_reading(chart, birth_dt: datetime):
             "summary": "This is only the surface of your timing. A full reading can show why these patterns are happening, what is opening next, and how to move through it with more clarity.",
         },
         "signals": signals,
+        "presentation": _build_presentation(dm, db, element, underlying, rel, decade_relation),
     }

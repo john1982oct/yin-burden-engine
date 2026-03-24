@@ -1,0 +1,97 @@
+Modify only `current_phase_engine.py` so that `generate_current_phase_reading` returns a presentation-ready response structure, while preserving all current metaphysics logic and all existing fields.
+
+Strict constraints:
+- Do NOT change chart calculation logic.
+- Do NOT change any existing meanings.
+- Do NOT remove or rename any existing fields.
+- Do NOT break the current frontend.
+- Do NOT refactor unrelated files.
+- Do NOT run more than one endpoint test.
+
+Goal:
+Add a new top-level field called `"presentation"` to the returned reading object.
+
+The `"presentation"` field should help the frontend render the reading more elegantly without having to invent display logic.
+
+Add these fields inside `"presentation"`:
+
+1. `"headline"`
+   - A warm, elegant one-line headline for the result page
+   - Should fit the tone of the current reading
+   - Should be based on current_phase summary/signals, not random
+
+2. `"intro"`
+   - A short paragraph introducing the reading
+   - Similar tone to the current frontend intro text
+   - Calm, emotionally warm, non-dramatic
+
+3. `"identity_pill"`
+   - A short formatted string like:
+     "Day Master: 戊 · Earth | Day Branch: 午 · Fire"
+
+4. `"section_order"`
+   - An array listing the order of frontend sections:
+     ["current_phase", "this_year", "current_decade", "cta"]
+
+5. `"section_labels"`
+   - An object mapping section keys to display labels
+   - Example:
+     {
+       "current_phase": "Current Phase",
+       "this_year": "This Year",
+       "current_decade": "Current Decade",
+       "cta": "Next Step"
+     }
+
+6. `"highlight_tags"`
+   - An array of 2 to 4 short frontend-friendly tags based on the reading signals
+   - Use existing logic only
+   - Good examples:
+     ["Grounded season", "Quiet support", "Long-term building"]
+   - Keep each tag short, warm, and readable
+
+7. `"cta_mode"`
+   - A simple string describing the type of CTA tone
+   - Example values:
+     "gentle_deeper_reading"
+     "supportive_reflection"
+     "clarity_next_step"
+   - Pick one deterministically based on the reading tone/signals
+
+Implementation guidance:
+- Keep all current fields exactly as they are:
+  day_master, day_master_element, day_branch, day_branch_element, current_phase, this_year, current_decade, cta, signals
+- Add only one new field: `"presentation"`
+- Build the new presentation values from existing reading data and signals
+- Do not use randomness
+- Keep the tone elegant, emotionally warm, and frontend-friendly
+
+Desired shape example:
+
+{
+  "reading": {
+    ...existing fields...,
+    "presentation": {
+      "headline": "...",
+      "intro": "...",
+      "identity_pill": "Day Master: 戊 · Earth | Day Branch: 午 · Fire",
+      "section_order": ["current_phase", "this_year", "current_decade", "cta"],
+      "section_labels": {
+        "current_phase": "Current Phase",
+        "this_year": "This Year",
+        "current_decade": "Current Decade",
+        "cta": "Next Step"
+      },
+      "highlight_tags": ["Grounded season", "Quiet support", "Long-term building"],
+      "cta_mode": "gentle_deeper_reading"
+    }
+  }
+}
+
+After making the change, run only one `/current-phase` test with:
+{
+  "birth_date": "1982-10-02",
+  "birth_time": "08:30"
+}
+
+Show me the full updated JSON response.
